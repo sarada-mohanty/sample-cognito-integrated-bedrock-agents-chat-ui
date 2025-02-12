@@ -2,6 +2,19 @@
 
 A React-based web application that enables interaction with Amazon Bedrock Agents directly from the browser. The application uses AWS Amplify, and leverages temporary credentials from Amazon Cognito User and Identity Pools for secure API access.
 
+## UI main components
+
+### Application configuration form
+![410521698-6d60dcf5-3fbe-4d5e-a201-9ee1d22958c0](https://github.com/user-attachments/assets/a2421c88-6fb4-45d8-9deb-7146d1ffad97)
+
+### Login process
+![login](https://github.com/user-attachments/assets/c563e4d6-f17f-4699-9055-be88dcb11c69)
+
+### Chat interaction
+![chatprompt](https://github.com/user-attachments/assets/6ea57a4d-503a-4936-a2c4-a7d0c8b2b8a5)
+
+
+
 ## Prerequisites
 
 - Node.js (v18 or later recommended)
