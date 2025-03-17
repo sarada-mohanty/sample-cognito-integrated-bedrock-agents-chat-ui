@@ -1,6 +1,6 @@
-import React from 'react';
 import { useState, useEffect, useRef, useCallback } from 'react';
-//import { Modal } from 'react-bootstrap';
+import ReactMarkdown from "react-markdown"
+import rehypeRaw from 'rehype-raw'
 import ChatBubble from "@cloudscape-design/chat-components/chat-bubble";
 import Avatar from "@cloudscape-design/chat-components/avatar";
 import LoadingBar from "@cloudscape-design/chat-components/loading-bar";
@@ -11,7 +11,6 @@ import {
   Form,
   FormField,
   PromptInput,
-  // ButtonGroup,
   Button,
   Modal,
   SpaceBetween,
@@ -203,6 +202,10 @@ const confirmClearData = () => {
       const userMessage = { text: newMessage, sender: user.username };
       setMessages(prevMessages => [...prevMessages, userMessage]);
       setIsAgentResponding(true); // Set to true when starting to wait for response
+
+      const sessionAttributes = {
+        aws_session: await AWSAuth.fetchAuthSession()
+      }
   
       const command = new InvokeAgentCommand({
         agentId: bedrockConfig.agentId,
@@ -210,7 +213,8 @@ const confirmClearData = () => {
         sessionId: sessionId,
         endSession: false,
         enableTrace: true,
-        inputText: newMessage
+        inputText: newMessage,
+        promptSessionAttributes: sessionAttributes
       });
   
       try {
@@ -225,6 +229,10 @@ const confirmClearData = () => {
           if(chunkEvent.trace){
             console.log("Trace: ", chunkEvent.trace);
             tasksCompleted.count++
+            if(typeof(chunkEvent.trace.trace.failureTrace) !== 'undefined'){
+              throw new Error(chunkEvent.trace.trace.failureTrace.failureReason);
+            }
+
             if(chunkEvent.trace.trace.orchestrationTrace.rationale){
               tasksCompleted.latestRationale = chunkEvent.trace.trace.orchestrationTrace.rationale.text
               scrollToBottom();
@@ -370,10 +378,12 @@ const confirmClearData = () => {
                       }
                     >
                       {message.text.split('\n').map((line, i) => (
-                        <React.Fragment key={i}>
-                          {line}
-                          {i < message.text.split('\n').length - 1 && <br />}
-                        </React.Fragment>
+                          <ReactMarkdown 
+                            key={'md-rendering'+i}
+                            rehypePlugins={[rehypeRaw]} // Enables HTML parsing
+                          >
+                            {line}
+                          </ReactMarkdown>
                       ))}
                     </ChatBubble>
                   </div>

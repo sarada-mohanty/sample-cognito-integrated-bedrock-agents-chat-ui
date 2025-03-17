@@ -70,6 +70,16 @@
   background: #555;
 }
 
+.chat-container h1 {
+  font-size: 2em;
+  line-height: 0.5;
+} 
+
+.chat-container h2 {
+  font-size: 1.5em;
+  line-height: 0.5;
+} 
+
 /* Styles for mobile devices with vertical screen orientation */
 @media (max-width: 920px), (orientation: portrait) {
     .chat-container {
@@ -81,6 +91,16 @@
         overflow: hidden;
         height: 80vh;
     }
+
+    .chat-container h1 {
+      font-size: 1.5em;
+      line-height: 1.1;
+    } 
+    
+    .chat-container h2 {
+      font-size: 1.2em;
+      line-height: 1;
+    } 
 }
 
 /* Target Safari on iPhone */
