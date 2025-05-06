@@ -113,6 +113,7 @@ The following table provides a sample cost breakdown for deploying this Guidance
 |----------|----------| ----------|
 | Amazon Cognito | 1,000 active users per month without advanced security feature | $0.00/month |
 | AWS Amplify | 5 developers committing code twice a day and 300 daily active users, the estimated monthly Amplify cost—including build, deploy, and hosting | $8.00/month |
+| Amazon Bedrock | 5 developers summarizing 2K tokens to 1K output tokens hourly using Amazon Nova Lite | $0.65/month |
 
 
 
