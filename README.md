@@ -1,3 +1,15 @@
+# Table of Contents
+- [Browser Client for Amazon Bedrock Agents](#browser-client-for-amazon-bedrock-agents)
+  - [UI main components](#ui-main-components)
+    - [Application configuration form](#application-configuration-form)
+    - [Login process](#login-process)
+    - [Chat interaction](#chat-interaction)
+      
+- [Prerequisites](#prerequisites)
+- [AWS Setup (Optional - Only if using AWS Amplify)](#aws-setup-optional---only-if-using-aws-amplify)
+- [Local Development](#local-development)
+
+
 # Browser Client for Amazon Bedrock Agents
 
 A React-based web application that enables interaction with Amazon Bedrock Agents directly from the browser. The application uses AWS Amplify, and leverages temporary credentials from Amazon Cognito User and Identity Pools for secure API access.
