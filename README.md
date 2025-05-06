@@ -4,10 +4,16 @@
     - [Application configuration form](#application-configuration-form)
     - [Login process](#login-process)
     - [Chat interaction](#chat-interaction)
-      
 - [Prerequisites](#prerequisites)
 - [AWS Setup (Optional - Only if using AWS Amplify)](#aws-setup-optional---only-if-using-aws-amplify)
 - [Local Development](#local-development)
+- [Building for Production](#building-for-production)
+- [Deployment to AWS Amplify](#deployment-to-aws-amplify)
+  - [Option 1: Manual Deployment](#option-1-manual-deployment)
+  - [Option 2: Continuous Deployment](#option-2-continuous-deployment)
+- [Sample Cost Analysis](#sample-cost-analysis)
+- [Additional Resources](#additional-resources)
+- [Support](#support)
 
 
 # Browser Client for Amazon Bedrock Agents
