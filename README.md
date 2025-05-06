@@ -107,6 +107,16 @@ zip -r ../deployment.zip ./*
 
 2. Amplify will automatically build and deploy your application when you push changes to your repository
 
+## Sample Cost Analysis
+The following table provides a sample cost breakdown for deploying this Guidance with the default parameters in the US East (N. Virginia) Region for one month:
+| AWS Service | Dimensions | Cost (USD) |
+|----------|----------| ----------|
+| Amazon Cognito | 1,000 active users per month without advanced security feature | $0.00/month |
+| AWS Amplify | 5 developers committing code twice a day and 300 daily active users, the estimated monthly Amplify cost—including build, deploy, and hosting | $8.00/month |
+
+
+
+
 ## Additional Resources
 
 - [AWS Amplify Documentation](https://docs.amplify.aws/)
