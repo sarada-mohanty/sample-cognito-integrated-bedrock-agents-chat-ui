@@ -26,7 +26,7 @@ A browser-based chat application built with React that connects directly to Amaz
 
 https://github.com/user-attachments/assets/83c4f1c9-9495-4d9c-a323-2e8bbf484523
 
-**High-Level Steps:**
+### High-Level Steps:
 
 1. The user navigates to the Secure Chat UI URL, which is hosted on AWS Amplify
 2. The page is returned with HTML, CSS, JavaScript.  User is now able to input the configuration details for Amazon Cognito and Amazon Bedrock Agents
