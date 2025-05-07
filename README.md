@@ -1,106 +1,138 @@
-# Table of Contents
-- [Browser Client for Amazon Bedrock Agents](#browser-client-for-amazon-bedrock-agents)
-  - [UI main components](#ui-main-components)
-    - [Application configuration form](#application-configuration-form)
-    - [Login process](#login-process)
-    - [Chat interaction](#chat-interaction)
+# Guidance for Browser Client for Amazon Bedrock Agents
+
+## Table of Contents
+- [Overview](#overview)
+- [Cost](#cost)
 - [Prerequisites](#prerequisites)
-- [AWS Setup (Optional - Only if using AWS Amplify)](#aws-setup-optional---only-if-using-aws-amplify)
-- [Local Development](#local-development)
-- [Building for Production](#building-for-production)
-- [Deployment to AWS Amplify](#deployment-to-aws-amplify)
-  - [Option 1: Manual Deployment](#option-1-manual-deployment)
-  - [Option 2: Continuous Deployment](#option-2-continuous-deployment)
-- [Sample Cost Analysis](#sample-cost-analysis)
-- [Additional Resources](#additional-resources)
-- [Support](#support)
+- [Deployment Steps](#deployment-steps)
+- [Deployment Validation](#deployment-validation)
+- [Running the Guidance](#running-the-guidance)
+- [Next Steps](#next-steps)
+- [Cleanup](#cleanup)
+- [FAQ, Known Issues, Additional Considerations, and Limitations](#faq-known-issues-additional-considerations-and-limitations)
+- [Revisions](#revisions)
+- [Notices](#notices)
+- [Authors](#authors)
+
+## Overview
+
+A browser-based chat application built with React that connects directly to Amazon Bedrock Agents. The solution leverages AWS Amplify for hosting and deployment, while implementing secure access through Amazon Cognito's User and Identity Pools for temporary credential management and API authentication.
+
+### Architecture Overview
+
+![AWSReferenceArchitecture-SecureChatUI](https://github.com/user-attachments/assets/332a0da8-e87b-4661-adb9-e596aa070883)
+
+**High-Level Steps:**
+
+1. The user navigates to the Secure Chat UI URL, which is hosted on AWS Amplify
+2. The page is returned with HTML, CSS, JavaScript.  User is now able to input the configuration details for Amazon Cognito and Amazon Bedrock Agents
+3. Upon configuration completion, the user is prompted to authenticate using Amazon Cognito with a username and password configured for them in the user pool
+4. After successful authentication, Cognito Identity Pool will negotiate temporary credentials from AWS Simple Token Service (STS)
+5. Cognito Identity Pool passes temporary AWS credentials to the frontend
+6. Once authenticated, the user now sees the Secure Chat UI chat prompt to interact with the Amazon Bedrock Agent that is configured
 
 
-# Browser Client for Amazon Bedrock Agents
+## Cost
 
-A React-based web application that enables interaction with Amazon Bedrock Agents directly from the browser. The application uses AWS Amplify, and leverages temporary credentials from Amazon Cognito User and Identity Pools for secure API access.
+You are responsible for the cost of the AWS services used while running this Guidance.  
 
-## UI main components
+As of May 2025, the cost for running this Guidance with the default settings in the US East (N. Virginia) Region is approximately **$8.65** per month for serving up to 300 daily active users and hourly summarization by 5 developers.
 
-### Application configuration form
-![410521698-6d60dcf5-3fbe-4d5e-a201-9ee1d22958c0](https://github.com/user-attachments/assets/a2421c88-6fb4-45d8-9deb-7146d1ffad97)
+We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/budgets) through AWS Cost Explorer to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this Guidance.
 
-### Login process
-![login](https://github.com/user-attachments/assets/c563e4d6-f17f-4699-9055-be88dcb11c69)
+### Sample Cost Table
 
-### Chat interaction
-![chatprompt](https://github.com/user-attachments/assets/6ea57a4d-503a-4936-a2c4-a7d0c8b2b8a5)
-
-
+| AWS Service      | Dimensions                                                                 | Cost (USD)     |
+|------------------|-----------------------------------------------------------------------------|----------------|
+| Amazon Cognito   | 1,000 active users per month without advanced security feature              | $0.00/month    |
+| AWS Amplify      | 5 developers committing code twice a day + 300 daily active users           | $8.00/month    |
+| Amazon Bedrock   | 5 developers summarizing 2K to 1K output tokens hourly using Amazon Nova Lite       | $0.65/month    |
 
 ## Prerequisites
 
-- Node.js (v18 or later recommended)
-- npm (latest version)
-- AWS Account with access to:
-  - Amazon Bedrock
-  - Amazon Cognito
-  - IAM permissions to manage Bedrock and Cognito resources
-  - AWS Amplify (optional - only if using Amplify for deployment)
+**Development Tools**
+- Node.js v18+
+- Latest npm version
 
-## AWS Setup (Optional - Only if using AWS Amplify)
+**AWS Account Requirements**
+- Access to the following services:
+   - AWS Amplify (for hosting and deployment)
+   - Amazon Bedrock Agents (for AI functionality)
+   - Amazon Cognito (for authentication)
 
-If you plan to use AWS Amplify for deployment, follow these steps:
+- IAM permissions to:
+   - Configure and manage Bedrock Agents
+   - Set up Cognito user/identity pools
+   - Deploy Amplify applications
+
+Note: Ensure your AWS account has sufficient permissions before starting the deployment process.
+
+## Deployment Steps
+
+### Clone repository
+
+1. Clone repository to your local machine
+
+```bash
+git clone https://github.com/aws-samples/sample-cognito-integrated-bedrock-agents-chat-ui.git
+```
+
+2. Change directory to the folder 
+```bash
+cd sample-cognito-integrated-bedrock-agents-chat-ui
+```
+
+3. Install dependencies 
+```bash
+npm install
+```
+
+### Local testing before deploying to AWS Amplify
+
+1. Start the development server:
+
+```bash
+npm run dev
+```
+
+The application will be available at http://localhost:5173 so you can test it locally before deploying to AWS Amplify 
+
+### AWS Hosted
+
+For deploying to AWS Amplify, follow these steps:
 
 1. Configure AWS Amplify
 
 ```bash
 # Install Amplify CLI globally
 npm install -g @aws-amplify/cli
+```
 
-# Configure Amplify CLI with your AWS credentials
+2. Configure Amplify CLI with your AWS credentials
+```bash
 amplify configure
+```
 
-# Initialize Amplify in your project
+3. Initialize Amplify in your project
+```bash
 amplify init
+```
 
-# Push the backend resources to AWS
+4. Push the backend resources to AWS
+```bash
 amplify push
 ```
 
 2. Set up Amazon Bedrock Agent
 - Create and configure your Bedrock Agent in the AWS Console
 - Note down the Agent ID and other relevant configuration details
-
-## Local Development
-
-1. Install dependencies:
-
-```bash
-npm install
-```
+- To test this solution with a sample agent, you can leverage the CloudFormation template that deploys an Amazon Bedrock Agent for asking weather related questions
 
 
-2. Start the development server:
 
-```bash
-npm run dev
-```
+### Deployment to AWS Amplify
 
-The application will be available at http://localhost:5173
-
-## Building for Production
-
-1. Build the application:
-
-```bash
-npm run build
-```
-
-2. Test the production build locally:
-
-```bash
-npm run preview
-```
-
-## Deployment to AWS Amplify
-
-### Option 1: Manual Deployment
+#### Option 1: Manual Deployment
 1. Build the application:
 
 ```bash
@@ -116,7 +148,7 @@ zip -r ../deployment.zip ./*
 
 3. Upload the deployment.zip file through the AWS Amplify Console
 
-### Option 2: Continuous Deployment
+#### Option 2: Continuous Deployment
 1. Connect your repository to AWS Amplify:
    - Go to AWS Amplify Console
    - Click "New App" > "Host Web App"
@@ -125,23 +157,70 @@ zip -r ../deployment.zip ./*
 
 2. Amplify will automatically build and deploy your application when you push changes to your repository
 
-## Sample Cost Analysis
-The following table provides a sample cost breakdown for deploying this Guidance with the default parameters in the US East (N. Virginia) Region for one month:
-| AWS Service | Dimensions | Cost (USD) |
-|----------|----------| ----------|
-| Amazon Cognito | 1,000 active users per month without advanced security feature | $0.00/month |
-| AWS Amplify | 5 developers committing code twice a day and 300 daily active users, the estimated monthly Amplify cost—including build, deploy, and hosting | $8.00/month |
-| Amazon Bedrock | 5 developers summarizing 2K tokens to 1K output tokens hourly using Amazon Nova Lite | $0.65/month |
+## Deployment Validation
 
+- Confirm that the Amplify app is deployed by checking the Amplify Console.
+- Verify that the Bedrock Agent responds to input on the UI.
+- You should see the frontend render an interactive chat interface.
 
+## Running the Guidance
 
+1. Launch the app (locally or via Amplify).
+2. Log in via Cognito.
+3. Enter a prompt into the chat input.
+4. Observe the response generated by the Bedrock Agent.
 
-## Additional Resources
+### Expected Output
 
-- [AWS Amplify Documentation](https://docs.amplify.aws/)
-- [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
-- [Vite Documentation](https://vitejs.dev/guide/)
+- You will see a conversational response in the chat UI rendered by the React app.
+- All requests go securely through Amplify using temporary credentials.
 
-## Support
+## Next Steps
 
-For issues and feature requests, please file an issue in the repository.
+This implementation leverages AWS Cloudscape Design System components to create a consistent and professional user interface aligned with AWS design patterns. For future enhancements, you can also take advantage of Amplify Gen2's chat capabilities, which would allow you to seamlessly integrate interactive chat features while maintaining the same AWS-native look and feel. The addition of Amplify Gen2 chat components would complement the existing Cloudscape foundation, particularly in areas requiring real-time user interaction and support.
+
+## Cleanup
+
+1. **Delete Amplify app**  
+   - From AWS Amplify Console, delete the app.
+
+2. **Delete Cognito pools**  
+   - Remove both User and Identity Pools.
+
+3. **Delete Bedrock Agent**  
+   - Navigate to the Bedrock console and delete the created agent.
+
+4. **Optional:** Delete associated IAM roles and policies.
+
+## FAQ, Known Issues, Additional Considerations, and Limitations
+
+### Known Issues
+
+- Some browsers may block third-party cookies, which may affect login behavior.
+
+### Additional Considerations
+
+- Amazon Bedrock requests are charged per token.
+
+For issues or feature requests, please use the [GitHub Issues tab](https://github.com/aws-samples/browser-client-bedrock-agents/issues).
+
+## Revisions
+
+- **v1.0.0** – Initial release with Bedrock Agent integration and Amplify deployment support.
+
+## Notices
+
+Customers are responsible for making their own independent assessment of the information in this Guidance.  
+This Guidance:  
+(a) is for informational purposes only,  
+(b) represents AWS current product offerings and practices, which are subject to change without notice, and  
+(c) does not create any commitments or assurances from AWS and its affiliates, suppliers, or licensors.  
+
+AWS products or services are provided “as is” without warranties, representations, or conditions of any kind, whether express or implied.  
+AWS responsibilities and liabilities to its customers are controlled by AWS agreements, and this Guidance is not part of, nor does it modify, any agreement between AWS and its customers.
+
+## Authors
+- Sergio Barraza
+- Salman Ahmed
+- Ravi Kumar
+- Ankush Goyal  
