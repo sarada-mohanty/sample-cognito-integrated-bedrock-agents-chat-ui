@@ -1,3 +1,4 @@
+import useSpeechToText from './js/useSpeechToText';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from "react-markdown"
 import rehypeRaw from 'rehype-raw'
@@ -45,25 +46,46 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
   // Controls visibility of the clear conversation modal
   const [showClearDataModal, setShowClearDataModal] = useState(false);
   // Name of the AI agent for display purposes
-  const [agentName, setAgentName] = useState({value: 'Agent'});
+  const [agentName, setAgentName] = useState({ value: 'Agent' });
   // Tracks completed tasks and their explanation
-  const [tasksCompleted, setTasksCompleted] = useState({count: 0, latestRationale: ''});
-  
+  const [tasksCompleted, setTasksCompleted] = useState({ count: 0, latestRationale: '' });
+
+  /**
+  * Scrolls the chat window to the most recent message
+  * Uses smooth scrolling behavior for better user experience
+  */
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   /**
  * Shows the modal for confirming conversation clearing
  */
-const handleClearData = () => {
+  const handleClearData = () => {
     setShowClearDataModal(true);
   };
 
-/**
- * Handles the confirmation action for clearing conversation data
- */
-/**
- * Handles the confirmation action for clearing conversation data
- * Clears all local storage and reloads the application
- */
-const confirmClearData = () => {
+  /**
+  Lines added for Speech to Text functionality
+   */
+  const { transcript, isListening, startListening, stopListening, speechRecognitionSupported } = useSpeechToText();
+  console.log('Speech Recognition Supported', speechRecognitionSupported);
+  useEffect(() => {
+    if (transcript) {
+      setNewMessage(transcript.trim());
+      scrollToBottom();
+    }
+  }, [transcript]);
+
+
+  /**
+   * Handles the confirmation action for clearing conversation data
+   */
+  /**
+   * Handles the confirmation action for clearing conversation data
+   * Clears all local storage and reloads the application
+   */
+  const confirmClearData = () => {
     // Clear all stored data from localStorage
     localStorage.clear();
     // Reload the application to reset state
@@ -152,10 +174,10 @@ const confirmClearData = () => {
           credentials: session.credentials
         });
         setBedrockClient(newClient);
-        if(bedrockConfig.agentName && bedrockConfig.agentName.trim()){
-          setAgentName({value: bedrockConfig.agentName})
+        if (bedrockConfig.agentName && bedrockConfig.agentName.trim()) {
+          setAgentName({ value: bedrockConfig.agentName })
         }
-        
+
       } catch (error) {
         console.error('Error fetching credentials:', error);
       }
@@ -179,14 +201,6 @@ const confirmClearData = () => {
   }, [messages]);
 
   /**
-   * Scrolls the chat window to the most recent message
-   * Uses smooth scrolling behavior for better user experience
-   */
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  /**
    * Handles the submission of new messages to the chat
    * Sends message to Bedrock agent and processes response
    * @param {Event} e - Form submission event
@@ -206,7 +220,7 @@ const confirmClearData = () => {
       const sessionAttributes = {
         aws_session: await AWSAuth.fetchAuthSession()
       }
-  
+
       const command = new InvokeAgentCommand({
         agentId: bedrockConfig.agentId,
         agentAliasId: bedrockConfig.agentAliasId,
@@ -216,44 +230,44 @@ const confirmClearData = () => {
         inputText: newMessage,
         promptSessionAttributes: sessionAttributes
       });
-  
+
       try {
         let completion = "";
         const response = await bedrockClient.send(command);
-  
+
         if (response.completion === undefined) {
           throw new Error("Completion is undefined");
         }
-  
+
         for await (const chunkEvent of response.completion) {
-          if(chunkEvent.trace){
+          if (chunkEvent.trace) {
             console.log("Trace: ", chunkEvent.trace);
             tasksCompleted.count++
-            if(typeof(chunkEvent.trace.trace.failureTrace) !== 'undefined'){
+            if (typeof (chunkEvent.trace.trace.failureTrace) !== 'undefined') {
               throw new Error(chunkEvent.trace.trace.failureTrace.failureReason);
             }
 
-            if(chunkEvent.trace.trace.orchestrationTrace.rationale){
+            if (chunkEvent.trace.trace.orchestrationTrace.rationale) {
               tasksCompleted.latestRationale = chunkEvent.trace.trace.orchestrationTrace.rationale.text
               scrollToBottom();
             }
-            setTasksCompleted({...tasksCompleted});
+            setTasksCompleted({ ...tasksCompleted });
 
-          }else if(chunkEvent.chunk){
+          } else if (chunkEvent.chunk) {
             const chunk = chunkEvent.chunk;
             const decodedResponse = new TextDecoder("utf-8").decode(chunk.bytes);
             completion += decodedResponse;
           }
         }
-  
+
         console.log('Full completion:', completion);
-  
+
         const agentMessage = { text: completion, sender: agentName.value };
         setMessages(prevMessages => [...prevMessages, agentMessage]);
-  
+
         // Store the new messages
         storeMessages(sessionId, [userMessage, agentMessage]);
-  
+
       } catch (err) {
         console.error('Error invoking agent:', err);
         const errorMessage = { text: `An error occurred while processing your request. Error: ${JSON.stringify(err, null, 2)}`, sender: 'agent' };
@@ -261,12 +275,12 @@ const confirmClearData = () => {
         storeMessages(sessionId, [userMessage, errorMessage]);
       } finally {
         setIsAgentResponding(false); // Set to false when response is received
-        setTasksCompleted({count: 0, latestRationale: ''});
+        setTasksCompleted({ count: 0, latestRationale: '' });
       }
-  
+
     }
   };
-  
+
   const handleLogout = async () => {
     try {
       await AWSAuth.signOut();
@@ -280,174 +294,195 @@ const confirmClearData = () => {
     // <ContentLayout
     //   defaultPadding
     //   header={
-        <div className="chat-component">
-          <Container stretch>
-            <div className="chat-container">
-              <TopNavigation
-                identity={{
-                  href: "#",
-                  title: `Chat with ${agentName.value}`,
-                }}
-                utilities={
-                  [
-                    //This is the button to start a new conversation
+    <div className="chat-component">
+      <Container stretch>
+        <div className="chat-container">
+          <TopNavigation
+            identity={{
+              href: "#",
+              title: `Chat with ${agentName.value}`,
+            }}
+            utilities={
+              [
+                //This is the button to start a new conversation
+                {
+                  type: "button",
+                  iconName: "add-plus",
+                  title: "Start a new conversation",
+                  ariaLabel: "Start a new conversation",
+                  disableUtilityCollapse: true,
+                  onClick: () => createNewSession()
+                },
+                //This is the settings handler
+                {
+                  type: "menu-dropdown",
+                  iconName: "settings",
+                  ariaLabel: "Settings",
+                  title: "Settings",
+                  disableUtilityCollapse: true,
+                  onItemClick: ({ detail }) => {
+                    switch (detail.id) {
+                      case "edit-settings":
+                        onConfigEditorClick();
+                        break;
+                      case "clear-settings":
+                        handleClearData();
+                        break;
+                    }
+                  },
+                  items: [
                     {
+                      id: "clear-settings",
                       type: "button",
-                      iconName: "add-plus",
-                      title: "Start a new conversation",
-                      ariaLabel: "Start a new conversation",
-                      disableUtilityCollapse: true,
-                      onClick: () => createNewSession()
+                      iconName: "remove",
+                      text: "Clear settings and local storage",
                     },
-                    //This is the settings handler
                     {
-                      type: "menu-dropdown",
-                      iconName: "settings",
-                      ariaLabel: "Settings",
-                      title: "Settings",
-                      disableUtilityCollapse: true,
-                      onItemClick: ({ detail }) => {
-                        switch(detail.id){
-                          case "edit-settings":
-                            onConfigEditorClick();
-                            break;
-                          case "clear-settings":
-                            handleClearData();
-                            break;
-                        }
-                      },
-                      items: [
-                        {
-                          id: "clear-settings",
-                          type: "button",
-                          iconName: "remove",
-                          text: "Clear settings and local storage",
-                        },
-                        {
-                          id: "edit-settings",
-                          text: "Edit Settings",
-                          iconName: "edit",
-                          type: "icon-button",
-                        }
-                      ]
-                    },
-                    //This is the user session menu options
+                      id: "edit-settings",
+                      text: "Edit Settings",
+                      iconName: "edit",
+                      type: "icon-button",
+                    }
+                  ]
+                },
+                //This is the user session menu options
+                {
+                  type: "menu-dropdown",
+                  text: user.username,
+                  iconName: "user-profile",
+                  title: user.username,
+                  ariaLabel: "User",
+                  disableUtilityCollapse: true,
+                  onItemClick: ({ detail }) => {
+                    switch (detail.id) {
+                      case "logout":
+                        handleLogout();
+                        break;
+                    }
+                  },
+                  items: [
                     {
-                      type: "menu-dropdown",
-                      text: user.username,
-                      iconName: "user-profile",
-                      title: user.username,
-                      ariaLabel: "User",
-                      disableUtilityCollapse: true,
-                      onItemClick: ({ detail }) => {
-                        switch(detail.id){
-                          case "logout":
-                            handleLogout();
-                            break;
-                        }
-                      },
-                      items: [
-                        {
-                          id: "logout",
-                          text: "Logout",
-                          iconName: "exit",
-                          type: "icon-button",
-                        }
-                      ]
+                      id: "logout",
+                      text: "Logout",
+                      iconName: "exit",
+                      type: "icon-button",
                     }
                   ]
                 }
-              />
-              {/* <div className="chat-header">
+              ]
+            }
+          />
+          {/* <div className="chat-header">
                 <div className="header-buttons">
                 </div>
               </div> */}
-              <div className="messages-container scrollable">
-                {messages.map((message, index) => (
-                  <div key={index}>
-                    <ChatBubble
-                      ariaLabel={`${message.sender} message`}
-                      type={message.sender === user.username ? "outgoing" : "incoming"}
-                      avatar={
-                        <Avatar
-                          ariaLabel={message.sender}
-                          tooltipText={message.sender}
-                          color={message.sender === user.username ? "default": "gen-ai"}
-                          initials={message.sender.substring(0, 2).toUpperCase()}
-                        />
-                      }
-                    >
-                      {message.text.split('\n').map((line, i) => (
-                          <ReactMarkdown 
-                            key={'md-rendering'+i}
-                            rehypePlugins={[rehypeRaw]} // Enables HTML parsing
-                          >
-                            {line}
-                          </ReactMarkdown>
-                      ))}
-                    </ChatBubble>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-                {isAgentResponding && (
-                  <LiveRegion>
-                  <Box
-                    margin={{ bottom: "xs", left: "l" }}
-                    color="text-body-secondary"
-                  >
-                    {tasksCompleted.count > 0 && (
-                      <div>
-                        {agentName.value} is working on your request | Tasks completed ({tasksCompleted.count})
-                        <br/> 
-                        <i>{tasksCompleted.latestRationale}</i>
-                      </div>
-                    )}
-                    <LoadingBar variant="gen-ai" />
-                  </Box>
-                </LiveRegion>
-                )}
-              </div>
-              <form onSubmit={handleSubmit} className="message-form">
-                <Form
+          <div className="messages-container scrollable">
+            {messages.map((message, index) => (
+              <div key={index}>
+                <ChatBubble
+                  ariaLabel={`${message.sender} message`}
+                  type={message.sender === user.username ? "outgoing" : "incoming"}
+                  avatar={
+                    <Avatar
+                      ariaLabel={message.sender}
+                      tooltipText={message.sender}
+                      color={message.sender === user.username ? "default" : "gen-ai"}
+                      initials={message.sender.substring(0, 2).toUpperCase()}
+                    />
+                  }
                 >
-                  <FormField stretch>
-                    <PromptInput 
+                  {message.text.split('\n').map((line, i) => (
+                    <ReactMarkdown
+                      key={'md-rendering' + i}
+                      rehypePlugins={[rehypeRaw]} // Enables HTML parsing
+                    >
+                      {line}
+                    </ReactMarkdown>
+                  ))}
+                </ChatBubble>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+            {isAgentResponding && (
+              <LiveRegion>
+                <Box
+                  margin={{ bottom: "xs", left: "l" }}
+                  color="text-body-secondary"
+                >
+                  {tasksCompleted.count > 0 && (
+                    <div>
+                      {agentName.value} is working on your request | Tasks completed ({tasksCompleted.count})
+                      <br />
+                      <i>{tasksCompleted.latestRationale}</i>
+                    </div>
+                  )}
+                  <LoadingBar variant="gen-ai" />
+                </Box>
+              </LiveRegion>
+            )}
+          </div>
+          <form onSubmit={handleSubmit} className="message-form">
+            <Form
+            >
+              <FormField stretch>
+                <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                  <button
+                    type="button"
+                    onClick={isListening ? stopListening : startListening}
+                    title={isListening ? "Stop Listening" : "Start Listening"}
+                    className="mic-button"
+                    hidden={!speechRecognitionSupported}
+                  >
+                    {isListening ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28" fill="red" viewBox="0 0 24 24">
+                        <path d="M12 14q-1.25 0-2.125-.875T9 11V5q0-1.25.875-2.125T12 2q1.25 0 2.125.875T15 5v6q0 1.25-.875 2.125T12 14Zm-1 7v-3.1q-2.875-.35-4.437-2.35Q5 13.55 5 11h2q0 2.075 1.463 3.538Q9.925 16 12 16q2.075 0 3.538-1.462Q17 13.075 17 11h2q0 2.55-1.563 4.55-1.562 2-4.437 2.35V21Z" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28" fill="black" viewBox="0 0 24 24">
+                        <path d="M12 14q-1.25 0-2.125-.875T9 11V5q0-1.25.875-2.125T12 2q1.25 0 2.125.875T15 5v6q0 1.25-.875 2.125T12 14Zm-1 7v-3.1q-2.875-.35-4.437-2.35Q5 13.55 5 11h2q0 2.075 1.463 3.538Q9.925 16 12 16q2.075 0 3.538-1.462Q17 13.075 17 11h2q0 2.55-1.563 4.55-1.562 2-4.437 2.35V21Z" />
+                      </svg>
+                    )}
+                  </button>
+                  <div style={{ flex: 1 }}>
+                    <PromptInput
                       type='text'
                       value={newMessage}
-                      onChange={({detail}) => setNewMessage(detail.value)}
+                      onChange={({ detail }) => setNewMessage(detail.value)}
                       placeholder='Type your question here...'
                       actionButtonAriaLabel="Send message"
                       actionButtonIconName="send"
                     />
-                    
-                  </FormField>
-                </Form>
-                
-              </form>
-              {/* Clear Data Confirmation Modal */}
+                  </div>
+                </div>
 
-              <Modal 
-                onDismiss={() => setShowClearDataModal(false)}
-                visible={showClearDataModal}
-                header="Confirm clearing data"
-                footer={
-                  <Box float="right">
-                    <SpaceBetween direction="horizontal" size="xs">
-                      <Button variant="link" onClick={() => setShowClearDataModal(false)}>Cancel</Button>
-                      <Button variant="primary" onClick={confirmClearData}>Ok</Button>
-                    </SpaceBetween>
-                  </Box>
-                }
-              >
-                <strong>This action cannot be undone.</strong> Configuration for this application will be deleted along with the chat history with {agentName.value}. Do you want to continue?
-              </Modal>
-            </div>
-          </Container>
-          
+              </FormField>
+            </Form>
+
+          </form>
+          {/* Clear Data Confirmation Modal */}
+
+          <Modal
+            onDismiss={() => setShowClearDataModal(false)}
+            visible={showClearDataModal}
+            header="Confirm clearing data"
+            footer={
+              <Box float="right">
+                <SpaceBetween direction="horizontal" size="xs">
+                  <Button variant="link" onClick={() => setShowClearDataModal(false)}>Cancel</Button>
+                  <Button variant="primary" onClick={confirmClearData}>Ok</Button>
+                </SpaceBetween>
+              </Box>
+            }
+          >
+            <strong>This action cannot be undone.</strong> Configuration for this application will be deleted along with the chat history with {agentName.value}. Do you want to continue?
+          </Modal>
         </div>
+      </Container>
+
+    </div>
     //   }
     // >
-      
+
     // </ContentLayout>  
   );
 };
