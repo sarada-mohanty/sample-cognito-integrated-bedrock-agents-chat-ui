@@ -16,7 +16,7 @@
 
 ## Overview
 
-A browser-based chat application built with React that connects directly to Amazon Bedrock Agents. The solution leverages AWS Amplify for hosting and deployment, while implementing secure access through Amazon Cognito's User and Identity Pools for temporary credential management and API authentication.
+A browser-based chat applicatio built with React that connects directly to Amazon Bedrock Agents. The solution leverages AWS Amplify for hosting and deployment, while implementing secure access through Amazon Cognito's User and Identity Pools for temporary credential management and API authentication.
 
 ### Architecture Overview
 
