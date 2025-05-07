@@ -22,6 +22,10 @@ A browser-based chat application built with React that connects directly to Amaz
 
 ![AWSReferenceArchitecture-SecureChatUI](https://github.com/user-attachments/assets/332a0da8-e87b-4661-adb9-e596aa070883)
 
+### Demo
+
+https://github.com/user-attachments/assets/83c4f1c9-9495-4d9c-a323-2e8bbf484523
+
 **High-Level Steps:**
 
 1. The user navigates to the Secure Chat UI URL, which is hosted on AWS Amplify
