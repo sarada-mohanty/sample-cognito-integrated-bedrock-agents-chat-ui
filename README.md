@@ -176,7 +176,7 @@ For issues or feature requests, please use the [GitHub Issues tab](https://githu
 
 - **v1.0.0** – Initial release with Bedrock Agent integration and Amplify deployment support.
 
-## Notices
+## ⚠️Notices
 
 Customers are responsible for making their own independent assessment of the information in this Guidance.  
 This Guidance:  
@@ -187,7 +187,7 @@ This Guidance:
 AWS products or services are provided “as is” without warranties, representations, or conditions of any kind, whether express or implied.  
 AWS responsibilities and liabilities to its customers are controlled by AWS agreements, and this Guidance is not part of, nor does it modify, any agreement between AWS and its customers.
 
-## Authors
+## 👥Authors
 - Sergio Barraza
 - Salman Ahmed
 - Ravi Kumar
