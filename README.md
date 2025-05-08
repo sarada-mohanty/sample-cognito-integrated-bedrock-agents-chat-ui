@@ -14,7 +14,7 @@
 - [Notices](#notices)
 - [Authors](#authors)
 
-## 📋 Overview
+## Overview
 
 A browser-based chat application built with React that connects directly to [Amazon Bedrock Agents](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-how.html). The solution leverages [AWS Amplify] (https://docs.aws.amazon.com/amplify/) for hosting and deployment, while implementing secure access through [Amazon Cognito](https://docs.aws.amazon.com/cognito/)'s User and Identity Pools for temporary credential management and API authentication.
 
