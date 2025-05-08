@@ -118,14 +118,14 @@ cd dist
 zip -r ../deployment.zip ./*
 ```
 
-3. Upload the deployment.zip file through the AWS Amplify Console
+3. A deployment.zip file will be created in the folder.  [Deploy](https://docs.aws.amazon.com/amplify/latest/userguide/manual-deploys.html) the deployment.zip file through the AWS Amplify Console.
 
 Set up Amazon Bedrock Agent
 - [Create](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-create.html) and configure your Bedrock Agent in the AWS Console
 - Note down the Agent ID and other relevant configuration [details](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-view.html)
 - To test this solution with a sample agent, you can leverage the Virtual Meterologist Agent CloudFormation template located [here](https://github.com/aws-samples/virtual-meteorologist-using-amazon-bedrock-agents/blob/main/cfn-virtual-meteorologist-using-amazon-bedrock-agents.yaml)
 
-## 🔍 Deployment Validation
+## Deployment Validation
 
 - Confirm that the Amplify app is deployed by checking the Amplify Console.
 - Verify that the Bedrock Agent responds to input on the UI.
