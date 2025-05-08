@@ -3,18 +3,18 @@
 ## Table of Contents
 - 📋 [Overview](#overview) 
 - 💰 [Cost](#cost) 
-- [Prerequisites ✅](#prerequisites)
-- [Deployment Steps 🚀](#deployment-steps)
-- [Deployment Validation 🔍](#deployment-validation)
-- [Running the Guidance 📘](#running-the-guidance)
-- [Next Steps ➡️](#next-steps)
-- [Cleanup 🧹](#cleanup)
-- [FAQ, Known Issues, Additional Considerations, and Limitations ❓](#faq-known-issues-additional-considerations-and-limitations)
-- [Revisions 📝](#revisions)
-- [Notices ⚠️](#notices)
-- [Authors 👥](#authors)
+- ✅ [Prerequisites](#prerequisites)
+- 🚀 [Deployment Steps](#deployment-steps)
+- 🔍 [Deployment Validation](#deployment-validation)
+- 📘 [Running the Guidance](#running-the-guidance)
+- ➡️ [Next Steps](#next-steps)
+- 🧹 [Cleanup](#cleanup)
+- ❓ [FAQ, Known Issues, Additional Considerations, and Limitations](#faq-known-issues-additional-considerations-and-limitations)
+- 📝 [Revisions](#revisions)
+- ⚠️ [Notices](#notices)
+- 👥 [Authors ](#authors)
 
-## Overview 📋
+## Overview
 
 A browser-based chat application built with React that connects directly to [Amazon Bedrock Agents](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-how.html). The solution leverages [AWS Amplify] (https://docs.aws.amazon.com/amplify/) for hosting and deployment, while implementing secure access through [Amazon Cognito](https://docs.aws.amazon.com/cognito/)'s User and Identity Pools for temporary credential management and API authentication.
 
@@ -36,7 +36,7 @@ https://github.com/user-attachments/assets/83c4f1c9-9495-4d9c-a323-2e8bbf484523
 6. Once authenticated, the user now sees the Secure Chat UI chat prompt to interact with the Amazon Bedrock Agent that is configured
 
 
-## Cost 💰
+## Cost
 
 You are responsible for the cost of the AWS services used while running this Guidance.  
 
@@ -52,7 +52,7 @@ We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/bu
 | AWS Amplify      | 5 developers committing code twice a day + 300 daily active users           | $8.00/month    |
 | Amazon Bedrock   | 5 developers summarizing 2K to 1K output tokens hourly using Amazon Nova Lite       | $0.65/month    |
 
-## ✅ Prerequisites
+## Prerequisites
 
 **Development Tools**
 - Node.js v18+
@@ -71,7 +71,7 @@ We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/bu
 
 Note: Ensure your AWS account has sufficient permissions before starting the deployment process.
 
-## 🚀 Deployment Steps
+## Deployment Steps
 
 ### Clone repository
 
@@ -131,7 +131,7 @@ Set up Amazon Bedrock Agent
 - Verify that the Bedrock Agent responds to input on the UI.
 - You should see the frontend render an interactive chat interface.
 
-## 📘 Running the Guidance
+## Running the Guidance
 
 1. Launch the app (locally or via Amplify).
 2. Log in via Cognito.
@@ -143,11 +143,11 @@ Set up Amazon Bedrock Agent
 - You will see a conversational response in the chat UI rendered by the React app.
 - All requests go securely through Amplify using temporary credentials.
 
-## ➡️ Next Steps
+## Next Steps
 
 This implementation leverages AWS Cloudscape Design System components to create a consistent and professional user interface aligned with AWS design patterns. For future enhancements, you can also take advantage of Amplify Gen2's chat capabilities, which would allow you to seamlessly integrate interactive chat features while maintaining the same AWS-native look and feel. The addition of Amplify Gen2 chat components would complement the existing Cloudscape foundation, particularly in areas requiring real-time user interaction and support.
 
-## 🧹 Cleanup
+## Cleanup
 
 1. **Delete Amplify app**  
    - From AWS Amplify Console, delete the app.
@@ -160,7 +160,7 @@ This implementation leverages AWS Cloudscape Design System components to create 
 
 4. **Optional:** Delete associated IAM roles and policies.
 
-## ❓ FAQ, Known Issues, Additional Considerations, and Limitations
+## FAQ, Known Issues, Additional Considerations, and Limitations
 
 ### Known Issues
 
@@ -172,11 +172,11 @@ This implementation leverages AWS Cloudscape Design System components to create 
 
 For issues or feature requests, please use the [GitHub Issues tab](https://github.com/aws-samples/browser-client-bedrock-agents/issues).
 
-## 📝 Revisions
+## Revisions
 
 - **v1.0.0** – Initial release with Bedrock Agent integration and Amplify deployment support.
 
-## ⚠️ Notices
+## Notices
 
 Customers are responsible for making their own independent assessment of the information in this Guidance.  
 This Guidance:  
@@ -187,7 +187,7 @@ This Guidance:
 AWS products or services are provided “as is” without warranties, representations, or conditions of any kind, whether express or implied.  
 AWS responsibilities and liabilities to its customers are controlled by AWS agreements, and this Guidance is not part of, nor does it modify, any agreement between AWS and its customers.
 
-## 👥 Authors
+## Authors
 - Sergio Barraza
 - Salman Ahmed
 - Ravi Kumar
