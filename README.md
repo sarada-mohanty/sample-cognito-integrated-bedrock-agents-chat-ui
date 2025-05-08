@@ -101,7 +101,8 @@ npm run dev
 
 The application will be available at http://localhost:5173 so you can test it locally before deploying to AWS Amplify 
 
-### Deployment to AWS Amplify
+
+#### Manual deployment to AWS Amplify
 
 For deploying to AWS Amplify, follow these steps:
 
@@ -119,15 +120,6 @@ zip -r ../deployment.zip ./*
 ```
 
 3. Upload the deployment.zip file through the AWS Amplify Console
-
-#### Option 2: Continuous Deployment
-1. Connect your repository to AWS Amplify:
-   - Go to AWS Amplify Console
-   - Click "New App" > "Host Web App"
-   - Choose your repository provider
-   - Follow the setup wizard
-
-2. Amplify will automatically build and deploy your application when you push changes to your repository
 
 
 Set up Amazon Bedrock Agent
