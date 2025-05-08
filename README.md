@@ -1,8 +1,8 @@
 # Guidance for Browser Client for Amazon Bedrock Agents
 
 ## Table of Contents
-- 📋 [Overview](#overview)
-- 💰 [Cost](#cost)
+-  [Overview](#overview) 📋
+-  [Cost](#cost) 💰
 - ✅ [Prerequisites](#prerequisites)
 - 🚀 [Deployment Steps](#deployment-steps)
 - 🔍 [Deployment Validation](#deployment-validation)
