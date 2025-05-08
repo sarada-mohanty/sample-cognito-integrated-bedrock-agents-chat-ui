@@ -12,7 +12,7 @@
 - [FAQ, Known Issues, Additional Considerations, and Limitations](#faq-known-issues-additional-considerations-and-limitations)
 - [Revisions](#revisions)
 - [Notices](#notices)
-- [Authors](#authors)
+- [Authors](##authors)
 
 ## 📋 Overview
 
