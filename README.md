@@ -16,7 +16,7 @@
 
 ## 📋 Overview
 
-A browser-based chat application built with React that connects directly to Amazon Bedrock Agents. The solution leverages AWS Amplify for hosting and deployment, while implementing secure access through Amazon Cognito's User and Identity Pools for temporary credential management and API authentication.
+A browser-based chat application built with React that connects directly to [Amazon Bedrock Agents](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-how.html). The solution leverages [AWS Amplify] (https://docs.aws.amazon.com/amplify/) for hosting and deployment, while implementing secure access through [Amazon Cognito](https://docs.aws.amazon.com/cognito/)'s User and Identity Pools for temporary credential management and API authentication.
 
 ### Architecture Overview
 
@@ -101,7 +101,6 @@ npm run dev
 
 The application will be available at http://localhost:5173 so you can test it locally before deploying to AWS Amplify 
 
-
 ### Manual deployment to AWS Amplify
 
 For deploying to AWS Amplify, follow these steps:
@@ -122,9 +121,9 @@ zip -r ../deployment.zip ./*
 3. Upload the deployment.zip file through the AWS Amplify Console
 
 Set up Amazon Bedrock Agent
-- Create and configure your Bedrock Agent in the AWS Console
-- Note down the Agent ID and other relevant configuration details
-- To test this solution with a sample agent, you can leverage the CloudFormation template that deploys an Amazon Bedrock Agent for asking weather related questions
+- [Create](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-create.html) and configure your Bedrock Agent in the AWS Console
+- Note down the Agent ID and other relevant configuration [details](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-view.html)
+- To test this solution with a sample agent, you can leverage the Virtual Meterologist Agent CloudFormation template located [here](https://github.com/aws-samples/virtual-meteorologist-using-amazon-bedrock-agents/blob/main/cfn-virtual-meteorologist-using-amazon-bedrock-agents.yaml)
 
 ## 🔍 Deployment Validation
 
