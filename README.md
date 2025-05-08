@@ -2,7 +2,7 @@
 
 ## Table of Contents
 - 📋 [Overview](#overview) 
-- 💰 [Cost](#cost) 
+- 💰 [Cost](sample-cognito-integrated-bedrock-agents-chat-ui?tab=readme-ov-file#-cost) 
 - ✅ [Prerequisites](#prerequisites)
 - 🚀 [Deployment Steps](#deployment-steps)
 - 🔍 [Deployment Validation](#deployment-validation)
