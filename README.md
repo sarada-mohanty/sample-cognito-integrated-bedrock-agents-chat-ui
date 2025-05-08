@@ -1,8 +1,8 @@
 # Guidance for Browser Client for Amazon Bedrock Agents
 
 ## Table of Contents
-- 📋 [Overview](#overview) 
-- 💰 [Cost](sample-cognito-integrated-bedrock-agents-chat-ui?tab=readme-ov-file#-cost) 
+* 📋 [Overview](#overview) 
+* 💰 [Cost](#cost) 
 - ✅ [Prerequisites](#prerequisites)
 - 🚀 [Deployment Steps](#deployment-steps)
 - 🔍 [Deployment Validation](#deployment-validation)
