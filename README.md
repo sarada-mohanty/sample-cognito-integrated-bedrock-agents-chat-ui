@@ -1,18 +1,18 @@
 # Guidance for Browser Client for Amazon Bedrock Agents
 
 ## Table of Contents
-- [Overview](#overview)
-- [Cost](#cost)
-- [Prerequisites](#prerequisites)
-- [Deployment Steps](#deployment-steps)
-- [Deployment Validation](#deployment-validation)
-- [Running the Guidance](#running-the-guidance)
-- [Next Steps](#next-steps)
-- [Cleanup](#cleanup)
-- [FAQ, Known Issues, Additional Considerations, and Limitations](#faq-known-issues-additional-considerations-and-limitations)
-- [Revisions](#revisions)
-- [Notices](#notices)
-- [Authors](#authors)
+- 📋 [Overview](#overview)
+- 💰 [Cost](#cost)
+- ✅ [Prerequisites](#prerequisites)
+- 🚀 [Deployment Steps](#deployment-steps)
+- 🔍 [Deployment Validation](#deployment-validation)
+- 📘 [Running the Guidance](#running-the-guidance)
+- ➡️ [Next Steps](#next-steps)
+- 🧹 [Cleanup](#cleanup)
+- ❓ [FAQ, Known Issues, Additional Considerations, and Limitations](#faq-known-issues-additional-considerations-and-limitations)
+- 📝 [Revisions](#revisions)
+- ⚠️ [Notices](#notices)
+- 👥 [Authors](#authors)
 
 ## Overview
 
