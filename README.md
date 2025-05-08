@@ -101,42 +101,10 @@ npm run dev
 
 The application will be available at http://localhost:5173 so you can test it locally before deploying to AWS Amplify 
 
-### AWS Hosted
+### Deployment to AWS Amplify
 
 For deploying to AWS Amplify, follow these steps:
 
-1. Configure AWS Amplify
-
-```bash
-# Install Amplify CLI globally
-npm install -g @aws-amplify/cli
-```
-
-2. Configure Amplify CLI with your AWS credentials
-```bash
-amplify configure
-```
-
-3. Initialize Amplify in your project
-```bash
-amplify init
-```
-
-4. Push the backend resources to AWS
-```bash
-amplify push
-```
-
-2. Set up Amazon Bedrock Agent
-- Create and configure your Bedrock Agent in the AWS Console
-- Note down the Agent ID and other relevant configuration details
-- To test this solution with a sample agent, you can leverage the CloudFormation template that deploys an Amazon Bedrock Agent for asking weather related questions
-
-
-
-### Deployment to AWS Amplify
-
-#### Option 1: Manual Deployment
 1. Build the application:
 
 ```bash
@@ -160,6 +128,12 @@ zip -r ../deployment.zip ./*
    - Follow the setup wizard
 
 2. Amplify will automatically build and deploy your application when you push changes to your repository
+
+
+Set up Amazon Bedrock Agent
+- Create and configure your Bedrock Agent in the AWS Console
+- Note down the Agent ID and other relevant configuration details
+- To test this solution with a sample agent, you can leverage the CloudFormation template that deploys an Amazon Bedrock Agent for asking weather related questions
 
 ## Deployment Validation
 
