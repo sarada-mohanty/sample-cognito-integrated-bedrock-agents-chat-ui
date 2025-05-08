@@ -1,20 +1,20 @@
 # Guidance for Browser Client for Amazon Bedrock Agents
 
 ## Table of Contents
-- [Overview](#overview)
-- [Cost](#cost) 
-- [Prerequisites](#prerequisites)
-- [Deployment Steps](#deployment-steps)
-- [Deployment Validation](#deployment-validation)
-- [Running the Guidance](#running-the-guidance)
-- [Next Steps](#next-steps)
-- [Cleanup](#cleanup)
-- [FAQ, Known Issues, Additional Considerations, and Limitations](#faq-known-issues-additional-considerations-and-limitations)
-- [Revisions](#revisions)
-- [Notices](#notices)
-- [Authors](#authors)
+- [Overview 📋](#overview) 
+- [Cost 💰](#cost) 
+- [Prerequisites ✅](#prerequisites)
+- [Deployment Steps 🚀](#deployment-steps)
+- [Deployment Validation 🔍](#deployment-validation)
+- [Running the Guidance 📘](#running-the-guidance)
+- [Next Steps ➡️](#next-steps)
+- [Cleanup 🧹](#cleanup)
+- [FAQ, Known Issues, Additional Considerations, and Limitations ❓](#faq-known-issues-additional-considerations-and-limitations)
+- [Revisions 📝](#revisions)
+- [Notices ⚠️](#notices)
+- [Authors 👥](#authors)
 
-## Overview
+## Overview 📋
 
 A browser-based chat application built with React that connects directly to [Amazon Bedrock Agents](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-how.html). The solution leverages [AWS Amplify] (https://docs.aws.amazon.com/amplify/) for hosting and deployment, while implementing secure access through [Amazon Cognito](https://docs.aws.amazon.com/cognito/)'s User and Identity Pools for temporary credential management and API authentication.
 
@@ -36,7 +36,7 @@ https://github.com/user-attachments/assets/83c4f1c9-9495-4d9c-a323-2e8bbf484523
 6. Once authenticated, the user now sees the Secure Chat UI chat prompt to interact with the Amazon Bedrock Agent that is configured
 
 
-## 💰 Cost
+## Cost 💰
 
 You are responsible for the cost of the AWS services used while running this Guidance.  
 
