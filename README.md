@@ -20,7 +20,7 @@ A browser-based chat application built with React that connects directly to [Ama
 
 ### Architecture Overview
 
-![AWSReferenceArchitecture-SecureChatUI](https://github.com/user-attachments/assets/332a0da8-e87b-4661-adb9-e596aa070883)
+<img width="2288" alt="Screenshot 2025-05-12 at 1 56 19 PM" src="https://github.com/user-attachments/assets/e8b12196-3e46-4dae-ad9e-8b169652353f" />
 
 ### Demo
 
