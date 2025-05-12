@@ -1,4 +1,4 @@
-# Guidance for Browser Client for Amazon Bedrock Agents
+# Guidance for Secure Chat UI for Amazon Bedrock Agents on AWS
 
 ## Table of Contents
 - 📋 [Overview](#overview) 
