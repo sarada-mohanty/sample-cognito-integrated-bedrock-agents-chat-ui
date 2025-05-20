@@ -120,7 +120,37 @@ zip -r ../deployment.zip ./*
 
 3. A deployment.zip file will be created in the folder.  [Deploy](https://docs.aws.amazon.com/amplify/latest/userguide/manual-deploys.html) the deployment.zip file through the AWS Amplify Console.
 
-Set up Amazon Bedrock Agent
+### Automated deployment to AWS Amplify
+
+For deploying to AWS Amplify without locally cloning this repository, follow these steps:
+
+1. [Fork](https://github.com/aws-samples/sample-cognito-integrated-bedrock-agents-chat-ui/fork) this repository
+
+2. Open your [AWS Management console and go to AWS Amplify](https://console.aws.amazon.com/amplify/apps):
+
+3. Follow the steps on this [documentation](https://docs.aws.amazon.com/amplify/latest/userguide/setting-up-GitHub-access.html#setting-up-github-app) to create and app and connect to the GitHub repository you just forked
+
+4. After connecting to your repository, you will be at the "App Setting" step in the AWS Amplify console. From there click on "Edit YML File" and paste the following. 
+```YML
+version: 1
+frontend:
+  phases:
+    build:
+      commands:
+        - npm install
+        - npm run build
+  artifacts:
+    baseDirectory: dist
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+```
+ 5. Click "Next" and then on "Save and Deploy" if everything looks good in the review page 
+
+
+## Set up Amazon Bedrock Agent
 - [Create](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-create.html) and configure your Bedrock Agent in the AWS Console
 - Note down the Agent ID and other relevant configuration [details](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-view.html)
 - To test this solution with a sample agent, you can leverage the Virtual Meterologist Agent CloudFormation template located [here](https://github.com/aws-samples/virtual-meteorologist-using-amazon-bedrock-agents/blob/main/cfn-virtual-meteorologist-using-amazon-bedrock-agents.yaml)
@@ -142,6 +172,11 @@ Set up Amazon Bedrock Agent
 
 - You will see a conversational response in the chat UI rendered by the React app.
 - All requests go securely through Amplify using temporary credentials.
+
+### Debugging and Logging
+- Errors from the backend will be printed out in the chat for your visualization and troubleshooting
+- More detailed causes of an error will be also printed in the console log of the browser
+- For development and debugging purposes there are specific events that are printed in the console log of the browser 
 
 ## Next Steps
 
