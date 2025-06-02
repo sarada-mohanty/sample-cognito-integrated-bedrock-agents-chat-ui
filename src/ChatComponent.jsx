@@ -20,6 +20,7 @@ import {
 import PropTypes from 'prop-types';
 import * as AWSAuth from '@aws-amplify/auth';
 import { BedrockAgentRuntimeClient, InvokeAgentCommand } from "@aws-sdk/client-bedrock-agent-runtime";
+import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import './ChatComponent.css';
 
 /**
@@ -33,6 +34,8 @@ import './ChatComponent.css';
 const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
   // AWS Bedrock client instance for agent communication
   const [bedrockClient, setBedrockClient] = useState(null);
+  // AWS Lambda client for Strands agent communication
+  const [lambdaClient, setLambdaClient] = useState(null);
   // Array of chat messages in the conversation
   const [messages, setMessages] = useState([]);
   // Current message being composed by the user
@@ -49,6 +52,8 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
   const [agentName, setAgentName] = useState({ value: 'Agent' });
   // Tracks completed tasks and their explanation
   const [tasksCompleted, setTasksCompleted] = useState({ count: 0, latestRationale: '' });
+  // Flag to determine if using Strands Agent
+  const [isStrandsAgent, setIsStrandsAgent] = useState(false);
 
   /**
   * Scrolls the chat window to the most recent message
@@ -165,19 +170,39 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
      */
     const fetchCredentials = async () => {
       try {
-        // Get Bedrock configuration from localStorage
-        const bedrockConfig = JSON.parse(localStorage.getItem('appConfig')).bedrock
+        // Get configuration from localStorage
+        const appConfig = JSON.parse(localStorage.getItem('appConfig'));
+        const bedrockConfig = appConfig.bedrock;
+        const strandsConfig = appConfig.strands;
+        
+        // Check if Strands Agent is enabled
+        setIsStrandsAgent(strandsConfig && strandsConfig.enabled);
+        
         // Fetch AWS authentication session
         const session = await AWSAuth.fetchAuthSession();
-        const newClient = new BedrockAgentRuntimeClient({
-          region: bedrockConfig.region,
-          credentials: session.credentials
-        });
-        setBedrockClient(newClient);
-        if (bedrockConfig.agentName && bedrockConfig.agentName.trim()) {
-          setAgentName({ value: bedrockConfig.agentName })
+        
+        // Initialize Bedrock client if needed
+        if (!strandsConfig || !strandsConfig.enabled) {
+          const newBedrockClient = new BedrockAgentRuntimeClient({
+            region: bedrockConfig.region,
+            credentials: session.credentials
+          });
+          setBedrockClient(newBedrockClient);
+          if (bedrockConfig.agentName && bedrockConfig.agentName.trim()) {
+            setAgentName({ value: bedrockConfig.agentName });
+          }
+        } 
+        // Initialize Lambda client for Strands Agent
+        else {
+          const newLambdaClient = new LambdaClient({
+            region: strandsConfig.region,
+            credentials: session.credentials
+          });
+          setLambdaClient(newLambdaClient);
+          if (strandsConfig.agentName && strandsConfig.agentName.trim()) {
+            setAgentName({ value: strandsConfig.agentName });
+          }
         }
-
       } catch (error) {
         console.error('Error fetching credentials:', error);
       }
@@ -187,10 +212,10 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
   }, []);
 
   useEffect(() => {
-    if (bedrockClient && !sessionId) {
+    if ((bedrockClient || lambdaClient) && !sessionId) {
       loadExistingSession();
     }
-  }, [bedrockClient, sessionId, loadExistingSession]);
+  }, [bedrockClient, lambdaClient, sessionId, loadExistingSession]);
 
   /**
    * Effect hook to scroll to latest messages
@@ -202,14 +227,15 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
 
   /**
    * Handles the submission of new messages to the chat
-   * Sends message to Bedrock agent and processes response
+   * Sends message to Bedrock agent or Strands agent and processes response
    * @param {Event} e - Form submission event
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Only proceed if we have a message and active session
-    if (newMessage.trim() && sessionId && bedrockClient) {
-      const bedrockConfig = JSON.parse(localStorage.getItem('appConfig')).bedrock
+    if (newMessage.trim() && sessionId) {
+      const appConfig = JSON.parse(localStorage.getItem('appConfig'));
+      
       // Clear input field
       setNewMessage('');
       // Create message object with user information
@@ -217,54 +243,100 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
       setMessages(prevMessages => [...prevMessages, userMessage]);
       setIsAgentResponding(true); // Set to true when starting to wait for response
 
-      const sessionAttributes = {
-        aws_session: await AWSAuth.fetchAuthSession()
-      }
-
-      const command = new InvokeAgentCommand({
-        agentId: bedrockConfig.agentId,
-        agentAliasId: bedrockConfig.agentAliasId,
-        sessionId: sessionId,
-        endSession: false,
-        enableTrace: true,
-        inputText: newMessage,
-        promptSessionAttributes: sessionAttributes
-      });
-
       try {
-        let completion = "";
-        const response = await bedrockClient.send(command);
+        let agentMessage;
+        
+        // Handle Bedrock Agent
+        if (!isStrandsAgent && bedrockClient) {
+          const bedrockConfig = appConfig.bedrock;
+          const sessionAttributes = {
+            aws_session: await AWSAuth.fetchAuthSession()
+          };
 
-        if (response.completion === undefined) {
-          throw new Error("Completion is undefined");
-        }
+          const command = new InvokeAgentCommand({
+            agentId: bedrockConfig.agentId,
+            agentAliasId: bedrockConfig.agentAliasId,
+            sessionId: sessionId,
+            endSession: false,
+            enableTrace: true,
+            inputText: newMessage,
+            promptSessionAttributes: sessionAttributes
+          });
 
-        for await (const chunkEvent of response.completion) {
-          if (chunkEvent.trace) {
-            console.log("Trace: ", chunkEvent.trace);
-            tasksCompleted.count++
-            if (typeof (chunkEvent.trace.trace.failureTrace) !== 'undefined') {
-              throw new Error(chunkEvent.trace.trace.failureTrace.failureReason);
-            }
+          let completion = "";
+          const response = await bedrockClient.send(command);
 
-            if (chunkEvent.trace.trace.orchestrationTrace.rationale) {
-              tasksCompleted.latestRationale = chunkEvent.trace.trace.orchestrationTrace.rationale.text
-              scrollToBottom();
-            }
-            setTasksCompleted({ ...tasksCompleted });
-
-          } else if (chunkEvent.chunk) {
-            const chunk = chunkEvent.chunk;
-            const decodedResponse = new TextDecoder("utf-8").decode(chunk.bytes);
-            completion += decodedResponse;
+          if (response.completion === undefined) {
+            throw new Error("Completion is undefined");
           }
+
+          for await (const chunkEvent of response.completion) {
+            if (chunkEvent.trace) {
+              console.log("Trace: ", chunkEvent.trace);
+              tasksCompleted.count++;
+              if (typeof (chunkEvent.trace.trace.failureTrace) !== 'undefined') {
+                throw new Error(chunkEvent.trace.trace.failureTrace.failureReason);
+              }
+
+              if (chunkEvent.trace.trace.orchestrationTrace.rationale) {
+                tasksCompleted.latestRationale = chunkEvent.trace.trace.orchestrationTrace.rationale.text;
+                scrollToBottom();
+              }
+              setTasksCompleted({ ...tasksCompleted });
+
+            } else if (chunkEvent.chunk) {
+              const chunk = chunkEvent.chunk;
+              const decodedResponse = new TextDecoder("utf-8").decode(chunk.bytes);
+              completion += decodedResponse;
+            }
+          }
+
+          console.log('Full completion:', completion);
+          agentMessage = { text: completion, sender: agentName.value };
+        } 
+        // Handle Strands Agent
+        else if (isStrandsAgent && lambdaClient) {
+          const strandsConfig = appConfig.strands;
+          
+          // Prepare payload for Lambda function
+          const payload = {
+            query: newMessage
+          };
+          
+          // Extract Lambda function name from ARN
+          const lambdaArn = strandsConfig.lambdaArn;
+          
+          const command = new InvokeCommand({
+            FunctionName: lambdaArn,
+            Payload: JSON.stringify(payload),
+            InvocationType: 'RequestResponse'
+          });
+          
+          const response = await lambdaClient.send(command);
+          
+          // Process Lambda response
+          const responseBody = new TextDecoder().decode(response.Payload);
+          const parsedResponse = JSON.parse(responseBody);
+          
+          console.log('Lambda response:', parsedResponse);
+          
+          // Extract the response text from the Lambda result
+          let responseText;
+          if (parsedResponse.body) {
+            const body = JSON.parse(parsedResponse.body);
+            responseText = body.response;
+          } else if (parsedResponse.response) {
+            responseText = parsedResponse.response;
+          } else {
+            responseText = "Sorry, I couldn't process your request.";
+          }
+          
+          agentMessage = { text: responseText, sender: agentName.value };
+        } else {
+          throw new Error("No agent client available");
         }
 
-        console.log('Full completion:', completion);
-
-        const agentMessage = { text: completion, sender: agentName.value };
         setMessages(prevMessages => [...prevMessages, agentMessage]);
-
         // Store the new messages
         storeMessages(sessionId, [userMessage, agentMessage]);
 
@@ -277,7 +349,6 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
         setIsAgentResponding(false); // Set to false when response is received
         setTasksCompleted({ count: 0, latestRationale: '' });
       }
-
     }
   };
 
@@ -409,11 +480,16 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
                   margin={{ bottom: "xs", left: "l" }}
                   color="text-body-secondary"
                 >
-                  {tasksCompleted.count > 0 && (
+                  {!isStrandsAgent && tasksCompleted.count > 0 && (
                     <div>
                       {agentName.value} is working on your request | Tasks completed ({tasksCompleted.count})
                       <br />
                       <i>{tasksCompleted.latestRationale}</i>
+                    </div>
+                  )}
+                  {isStrandsAgent && (
+                    <div>
+                      {agentName.value} is processing your request...
                     </div>
                   )}
                   <LoadingBar variant="gen-ai" />
