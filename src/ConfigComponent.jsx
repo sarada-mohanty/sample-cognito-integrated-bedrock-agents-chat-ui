@@ -9,6 +9,7 @@ import {
   FormField,
   Input,
   Button,
+  Select,
 } from "@cloudscape-design/components";
 
 /**
@@ -38,6 +39,12 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
       agentName: '',
       agentId: '',
       agentAliasId: '',
+      region: ''
+    },
+    strands: {
+      enabled: false,
+      lambdaArn: '',
+      agentName: 'Strands Agent',
       region: ''
     }
   });
@@ -73,15 +80,27 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
       newErrors.cognitoRegion = 'Cognito Region is required';
     }
 
-    // Validate Bedrock fields
-    if (!config.bedrock.agentId.trim()) {
-      newErrors.agentId = 'Agent ID is required';
+    // Validate Bedrock fields if Strands Agent is not enabled
+    if (!config.strands.enabled) {
+      if (!config.bedrock.agentId.trim()) {
+        newErrors.agentId = 'Agent ID is required';
+      }
+      if (!config.bedrock.agentAliasId.trim()) {
+        newErrors.agentAliasId = 'Agent Alias ID is required';
+      }
+      if (!config.bedrock.region.trim()) {
+        newErrors.bedrockRegion = 'Bedrock Region is required';
+      }
     }
-    if (!config.bedrock.agentAliasId.trim()) {
-      newErrors.agentAliasId = 'Agent Alias ID is required';
-    }
-    if (!config.bedrock.region.trim()) {
-      newErrors.bedrockRegion = 'Bedrock Region is required';
+    
+    // Validate Strands fields if enabled
+    if (config.strands.enabled) {
+      if (!config.strands.lambdaArn.trim()) {
+        newErrors.lambdaArn = 'Lambda ARN is required';
+      }
+      if (!config.strands.region.trim()) {
+        newErrors.strandsRegion = 'Region is required';
+      }
     }
 
     setErrors(newErrors);
@@ -90,13 +109,25 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
 
   useEffect(() => {
     const storedConfig = localStorage.getItem('appConfig');
-    if (storedConfig && !isEditingConfig) {
+    if (storedConfig) {
       const parsedConfig = JSON.parse(storedConfig);
-      configureAmplify(parsedConfig);
-    }else if(storedConfig && isEditingConfig){
-      const parsedConfig = JSON.parse(storedConfig);
-      console.log("loading configuration")
-      setConfig(parsedConfig);
+      
+      // Ensure the strands object exists with default values if missing
+      if (!parsedConfig.strands) {
+        parsedConfig.strands = {
+          enabled: false,
+          lambdaArn: '',
+          agentName: 'Strands Agent',
+          region: ''
+        };
+      }
+      
+      if (!isEditingConfig) {
+        configureAmplify(parsedConfig);
+      } else {
+        console.log("loading configuration");
+        setConfig(parsedConfig);
+      }
     }
   }, [isEditingConfig, onConfigSet, configureAmplify]);
 
@@ -109,6 +140,28 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
       }
     }));
   };
+
+  // Extract region from Lambda ARN if it's a valid ARN
+  const extractRegionFromLambdaArn = (arn) => {
+    // Validate if it's a Lambda ARN format: arn:aws:lambda:REGION:ACCOUNT:function:NAME
+    const arnPattern = /^arn:aws:lambda:([a-z0-9-]+):\d+:function:.+$/;
+    const match = arn.match(arnPattern);
+    
+    if (match && match[1]) {
+      return match[1]; // Return the extracted region
+    }
+    return ''; // Return empty string if not a valid Lambda ARN
+  };
+
+  // Update Strands region when Lambda ARN changes
+  useEffect(() => {
+    if (config.strands.enabled && config.strands.lambdaArn) {
+      const region = extractRegionFromLambdaArn(config.strands.lambdaArn);
+      if (region) {
+        handleInputChange('strands', 'region', region);
+      }
+    }
+  }, [config.strands.lambdaArn, config.strands.enabled]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -138,9 +191,14 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
           <form onSubmit={handleSubmit}>
             <Form
               actions={
-                <Button variant="primary" formAction="submit">
-                  {isEditingConfig? "Update configuration" : "Save configuration"}
-                </Button>
+                <SpaceBetween direction="horizontal" size="xs">
+                  <Button variant="primary" formAction="submit">
+                    {isEditingConfig ? "Update configuration" : "Save configuration"}
+                  </Button>
+                  <Button variant="link" onClick={() => setEditingConfig(false)}>
+                    Cancel
+                  </Button>
+                </SpaceBetween>
               }
             >
               <SpaceBetween size="l">
@@ -215,70 +273,160 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
             
                 <Container
                   header={
-                    <Header variant="h2">Amazon Bedrock Agent setup</Header>
+                    <Header variant="h2">Agent Selection</Header>
                   }
                 >
                   <SpaceBetween size="l">
                     <FormField 
-                      label="Agent Name"
-                      errorText={errors.agentName}
+                      label="Select Agent Type"
                     >
-                      <Input
-                        value={config.bedrock.agentName}
-                        placeholder='e.g. MyAgent'
-                        onChange={({ detail }) => {
-                          handleInputChange('bedrock', 'agentName', detail.value);
-                          setErrors({...errors, agentName: ''});
+                      <Select
+                        selectedOption={{
+                          value: config.strands.enabled ? 'strands' : 'bedrock',
+                          label: config.strands.enabled ? 'Strands Agent' : 'Bedrock Agent'
                         }}
-                      />
-                    </FormField>
-                    <FormField 
-                      label="Agent ID" 
-                      isRequired
-                      errorText={errors.agentId}
-                    >
-                      <Input
-                        value={config.bedrock.agentId}
-                        isRequired
-                        placeholder='e.g. UF1W5WKVYI'
                         onChange={({ detail }) => {
-                          handleInputChange('bedrock', 'agentId', detail.value);
-                          setErrors({...errors, agentId: ''});
+                          setConfig(prevConfig => ({
+                            ...prevConfig,
+                            strands: {
+                              ...prevConfig.strands,
+                              enabled: detail.selectedOption.value === 'strands'
+                            }
+                          }));
                         }}
-                      />
-                    </FormField>
-                    <FormField 
-                      label="Agent Alias ID" 
-                      isRequired
-                      errorText={errors.agentAliasId}
-                    >
-                      <Input
-                        value={config.bedrock.agentAliasId}
-                        isRequired
-                        placeholder='e.g. TSTALIASID (by default will point to your draft)'
-                        onChange={({ detail }) => {
-                          handleInputChange('bedrock', 'agentAliasId', detail.value);
-                          setErrors({...errors, agentAliasId: ''});
-                        }}
-                      />
-                    </FormField>
-                    <FormField 
-                      label="Region" 
-                      isRequired
-                      errorText={errors.bedrockRegion}
-                    >
-                      <Input
-                        value={config.bedrock.region}
-                        isRequired
-                        placeholder='e.g. us-east-1'
-                        onChange={({ detail }) => {
-                          handleInputChange('bedrock', 'region', detail.value);
-                          setErrors({...errors, bedrockRegion: ''});
-                        }}
+                        options={[
+                          { value: 'bedrock', label: 'Bedrock Agent' },
+                          { value: 'strands', label: 'Strands Agent' }
+                        ]}
                       />
                     </FormField>
                   </SpaceBetween>
                 </Container>
+            
+                {!config.strands.enabled && (
+                  <Container
+                    header={
+                      <Header variant="h2">Amazon Bedrock Agent setup</Header>
+                    }
+                  >
+                    <SpaceBetween size="l">
+                      <FormField 
+                        label="Agent Name"
+                        errorText={errors.agentName}
+                      >
+                        <Input
+                          value={config.bedrock.agentName}
+                          placeholder='e.g. MyAgent'
+                          onChange={({ detail }) => {
+                            handleInputChange('bedrock', 'agentName', detail.value);
+                            setErrors({...errors, agentName: ''});
+                          }}
+                        />
+                      </FormField>
+                      <FormField 
+                        label="Agent ID" 
+                        isRequired
+                        errorText={errors.agentId}
+                      >
+                        <Input
+                          value={config.bedrock.agentId}
+                          isRequired
+                          placeholder='e.g. UF1W5WKVYI'
+                          onChange={({ detail }) => {
+                            handleInputChange('bedrock', 'agentId', detail.value);
+                            setErrors({...errors, agentId: ''});
+                          }}
+                        />
+                      </FormField>
+                      <FormField 
+                        label="Agent Alias ID" 
+                        isRequired
+                        errorText={errors.agentAliasId}
+                      >
+                        <Input
+                          value={config.bedrock.agentAliasId}
+                          isRequired
+                          placeholder='e.g. TSTALIASID (by default will point to your draft)'
+                          onChange={({ detail }) => {
+                            handleInputChange('bedrock', 'agentAliasId', detail.value);
+                            setErrors({...errors, agentAliasId: ''});
+                          }}
+                        />
+                      </FormField>
+                      <FormField 
+                        label="Region" 
+                        isRequired
+                        errorText={errors.bedrockRegion}
+                      >
+                        <Input
+                          value={config.bedrock.region}
+                          isRequired
+                          placeholder='e.g. us-east-1'
+                          onChange={({ detail }) => {
+                            handleInputChange('bedrock', 'region', detail.value);
+                            setErrors({...errors, bedrockRegion: ''});
+                          }}
+                        />
+                      </FormField>
+                    </SpaceBetween>
+                  </Container>
+                )}
+
+                {config.strands.enabled && (
+                  <Container
+                    header={
+                      <Header variant="h2">Strands Agent setup</Header>
+                    }
+                  >
+                    <SpaceBetween size="l">
+                      <FormField 
+                        label="Agent Name"
+                        errorText={errors.strandsAgentName}
+                      >
+                        <Input
+                          value={config.strands.agentName}
+                          placeholder='e.g. Weather Agent'
+                          onChange={({ detail }) => {
+                            handleInputChange('strands', 'agentName', detail.value);
+                            setErrors({...errors, strandsAgentName: ''});
+                          }}
+                        />
+                      </FormField>
+                      <FormField 
+                        label="Lambda ARN" 
+                        isRequired
+                        errorText={errors.lambdaArn}
+                      >
+                        <Input
+                          value={config.strands.lambdaArn}
+                          isRequired
+                          placeholder='e.g. arn:aws:lambda:us-east-1:123456789012:function:my-strands-agent'
+                          onChange={({ detail }) => {
+                            handleInputChange('strands', 'lambdaArn', detail.value);
+                            setErrors({...errors, lambdaArn: ''});
+                          }}
+                        />
+                      </FormField>
+                      <FormField 
+                        label="Region" 
+                        isRequired
+                        errorText={errors.strandsRegion}
+                        description="Automatically detected from Lambda ARN if valid"
+                      >
+                        <Input
+                          value={config.strands.region}
+                          isRequired
+                          placeholder='e.g. us-east-1'
+                          disabled={!!extractRegionFromLambdaArn(config.strands.lambdaArn)}
+                          onChange={({ detail }) => {
+                            handleInputChange('strands', 'region', detail.value);
+                            setErrors({...errors, strandsRegion: ''});
+                          }}
+                        />
+                      </FormField>
+                    </SpaceBetween>
+                  </Container>
+                )}
               </SpaceBetween>
             </Form>
           </form>
