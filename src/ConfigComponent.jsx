@@ -141,6 +141,28 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
     }));
   };
 
+  // Extract region from Lambda ARN if it's a valid ARN
+  const extractRegionFromLambdaArn = (arn) => {
+    // Validate if it's a Lambda ARN format: arn:aws:lambda:REGION:ACCOUNT:function:NAME
+    const arnPattern = /^arn:aws:lambda:([a-z0-9-]+):\d+:function:.+$/;
+    const match = arn.match(arnPattern);
+    
+    if (match && match[1]) {
+      return match[1]; // Return the extracted region
+    }
+    return ''; // Return empty string if not a valid Lambda ARN
+  };
+
+  // Update Strands region when Lambda ARN changes
+  useEffect(() => {
+    if (config.strands.enabled && config.strands.lambdaArn) {
+      const region = extractRegionFromLambdaArn(config.strands.lambdaArn);
+      if (region) {
+        handleInputChange('strands', 'region', region);
+      }
+    }
+  }, [config.strands.lambdaArn, config.strands.enabled]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -389,11 +411,13 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
                         label="Region" 
                         isRequired
                         errorText={errors.strandsRegion}
+                        description="Automatically detected from Lambda ARN if valid"
                       >
                         <Input
                           value={config.strands.region}
                           isRequired
                           placeholder='e.g. us-east-1'
+                          disabled={!!extractRegionFromLambdaArn(config.strands.lambdaArn)}
                           onChange={({ detail }) => {
                             handleInputChange('strands', 'region', detail.value);
                             setErrors({...errors, strandsRegion: ''});
