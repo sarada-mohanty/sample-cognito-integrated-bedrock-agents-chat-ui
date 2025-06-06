@@ -342,7 +342,10 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
 
       } catch (err) {
         console.error('Error invoking agent:', err);
-        const errorMessage = { text: `An error occurred while processing your request. Error: ${JSON.stringify(err, null, 2)}`, sender: 'agent' };
+
+        let errReason = "**"+String(err).toString()+"**";
+
+        const errorMessage = { text: `An error occurred while processing your request:\n${errReason}`, sender: 'agent' };
         setMessages(prevMessages => [...prevMessages, errorMessage]);
         storeMessages(sessionId, [userMessage, errorMessage]);
       } finally {
