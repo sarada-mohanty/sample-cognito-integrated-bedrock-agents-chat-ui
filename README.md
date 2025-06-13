@@ -19,7 +19,7 @@
 
 ## Overview
 
-This guidance demonstrates how to build a secure, browser-based chat application that connects directly to Amazon Bedrock Agents. The solution addresses the need for organizations to quickly deploy AI-powered chat interfaces with enterprise-grade security and authentication.
+This guidance demonstrates how to build a secure, browser-based chat application that connects directly to [Amazon Bedrock Agents](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-how.html). The solution addresses the need for organizations to quickly deploy AI-powered chat interfaces with enterprise-grade security and authentication.
 
 **What**: A React-based chat UI that securely connects to Amazon Bedrock Agents.
 
@@ -27,7 +27,7 @@ This guidance demonstrates how to build a secure, browser-based chat application
 
 **Why**: To provide a production-ready solution for deploying secure AI chat applications with minimal setup.
 
-The solution leverages AWS Amplify for hosting and deployment, while implementing secure access through Amazon Cognito's User and Identity Pools for temporary credential management and API authentication.
+The solution leverages [AWS Amplify](https://docs.aws.amazon.com/amplify/) for hosting and deployment, while implementing secure access through [Amazon Cognito](https://docs.aws.amazon.com/cognito/)'s User and Identity Pools for temporary credential management and API authentication.
 
 ## Architecture Overview
 
