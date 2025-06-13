@@ -2,25 +2,46 @@
 
 ## Table of Contents
 - 📋 [Overview](#overview) 
+- 🏛️ [Architecture Overview](#architecture-overview)
 - 💰 [Cost](#cost) 
 - ✅ [Prerequisites](#prerequisites)
 - 🚀 [Deployment Steps](#deployment-steps)
 - 🔍 [Deployment Validation](#deployment-validation)
 - 📘 [Running the Guidance](#running-the-guidance)
+- 🔒 [Security Considerations](#security-considerations)
+- 🚀 [Performance Optimization](#performance-optimization)
 - ➡️ [Next Steps](#next-steps)
 - 🧹 [Cleanup](#cleanup)
 - ❓ [FAQ, Known Issues, Additional Considerations, and Limitations](#faq-known-issues-additional-considerations-and-limitations)
 - 📝 [Revisions](#revisions)
 - ⚠️ [Notices](#notices)
-- 👥 [Authors ](#authors)
+- 👥 [Authors](#authors)
 
 ## Overview
 
-A browser-based chat application built with React that connects directly to [Amazon Bedrock Agents](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-how.html). The solution leverages [AWS Amplify] (https://docs.aws.amazon.com/amplify/) for hosting and deployment, while implementing secure access through [Amazon Cognito](https://docs.aws.amazon.com/cognito/)'s User and Identity Pools for temporary credential management and API authentication.
+This guidance demonstrates how to build a secure, browser-based chat application that connects directly to Amazon Bedrock Agents. The solution addresses the need for organizations to quickly deploy AI-powered chat interfaces with enterprise-grade security and authentication.
 
-### Architecture Overview
+**What**: A React-based chat UI that securely connects to Amazon Bedrock Agents.
 
-<img width="2288" alt="Screenshot 2025-05-12 at 1 56 19 PM" src="https://github.com/user-attachments/assets/e8b12196-3e46-4dae-ad9e-8b169652353f" />
+**Who**: Developers and organizations looking to implement secure AI chat interfaces.
+
+**Why**: To provide a production-ready solution for deploying secure AI chat applications with minimal setup.
+
+The solution leverages Amazon Amplify for hosting and deployment, while implementing secure access through Amazon Cognito's User and Identity Pools for temporary credential management and API authentication.
+
+## Architecture Overview
+
+![Architecture diagram showing the flow between user, Amplify hosting, Cognito authentication, and Bedrock Agents](https://github.com/user-attachments/assets/e8b12196-3e46-4dae-ad9e-8b169652353f)
+*Figure 1: Architecture diagram showing the secure authentication flow and connection to Amazon Bedrock Agents*
+
+The architecture implements a secure pattern for browser-based applications to interact with Amazon Bedrock Agents:
+
+1. **Frontend Hosting**: Amazon Amplify hosts the React application, providing scalable content delivery
+2. **Authentication**: Amazon Cognito manages user authentication and provides temporary AWS credentials
+3. **Secure API Access**: Temporary credentials allow the frontend to make authenticated calls to Amazon Bedrock
+4. **AI Interaction**: Amazon Bedrock Agents process user queries and return responses directly to the frontend
+
+This architecture eliminates the need for a custom backend while maintaining enterprise-grade security.
 
 ### Demo
 
@@ -28,13 +49,12 @@ https://github.com/user-attachments/assets/83c4f1c9-9495-4d9c-a323-2e8bbf484523
 
 ### High-Level Steps:
 
-1. The user navigates to the Secure Chat UI URL, which is hosted on AWS Amplify
-2. The page is returned with HTML, CSS, JavaScript.  User is now able to input the configuration details for Amazon Cognito and Amazon Bedrock Agents
+1. The user navigates to the Secure Chat UI URL, which is hosted on Amazon Amplify
+2. The page is returned with HTML, CSS, JavaScript. User is now able to input the configuration details for Amazon Cognito and Amazon Bedrock Agents
 3. Upon configuration completion, the user is prompted to authenticate using Amazon Cognito with a username and password configured for them in the user pool
 4. After successful authentication, Cognito Identity Pool will negotiate temporary credentials from AWS Simple Token Service (STS)
 5. Cognito Identity Pool passes temporary AWS credentials to the frontend
 6. Once authenticated, the user now sees the Secure Chat UI chat prompt to interact with the Amazon Bedrock Agent that is configured
-
 
 ## Cost
 
@@ -49,8 +69,8 @@ We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/bu
 | AWS Service      | Dimensions                                                                 | Cost (USD)     |
 |------------------|-----------------------------------------------------------------------------|----------------|
 | Amazon Cognito   | 1,000 active users per month without advanced security feature              | $0.00/month    |
-| AWS Amplify      | 5 developers committing code twice a day + 300 daily active users           | $8.00/month    |
-| Amazon Bedrock   | 5 developers summarizing 2K to 1K output tokens hourly using Amazon Nova Lite       | $0.65/month    |
+| Amazon Amplify   | 5 developers committing code twice a day + 300 daily active users           | $8.00/month    |
+| Amazon Bedrock   | 5 developers summarizing 2K to 1K output tokens hourly using Amazon Nova Lite | $0.65/month    |
 
 ## Prerequisites
 
@@ -60,7 +80,7 @@ We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/bu
 
 **AWS Account Requirements**
 - Access to the following services:
-   - AWS Amplify (for hosting and deployment)
+   - Amazon Amplify (for hosting and deployment)
    - Amazon Bedrock Agents (for AI functionality)
    - Amazon Cognito (for authentication)
 
@@ -73,25 +93,29 @@ Note: Ensure your AWS account has sufficient permissions before starting the dep
 
 ## Deployment Steps
 
+**Objective**: Set up and deploy the Secure Chat UI application with proper configuration.
+
 ### Clone repository
 
-1. Clone repository to your local machine
+1. Clone repository to your local machine:
 
 ```bash
 git clone https://github.com/aws-samples/sample-cognito-integrated-bedrock-agents-chat-ui.git
 ```
 
-2. Change directory to the folder 
+2. Change directory to the folder:
 ```bash
 cd sample-cognito-integrated-bedrock-agents-chat-ui
 ```
 
-3. Install dependencies 
+3. Install dependencies:
 ```bash
 npm install
 ```
 
-### Local testing before deploying to AWS Amplify
+**Success Criteria**: All dependencies are installed without errors.
+
+### Local testing before deploying to Amazon Amplify
 
 1. Start the development server:
 
@@ -99,11 +123,14 @@ npm install
 npm run dev
 ```
 
-The application will be available at http://localhost:5173 so you can test it locally before deploying to AWS Amplify 
+2. Open your browser and navigate to http://localhost:5173
+3. Verify the application loads correctly
 
-### Manual deployment to AWS Amplify
+**Success Criteria**: The application is running locally and the UI is displayed correctly.
 
-For deploying to AWS Amplify, follow these steps:
+### Manual deployment to Amazon Amplify
+
+**Objective**: Deploy the application to Amazon Amplify manually.
 
 1. Build the application:
 
@@ -118,19 +145,24 @@ cd dist
 zip -r ../deployment.zip ./*
 ```
 
-3. A deployment.zip file will be created in the folder.  [Deploy](https://docs.aws.amazon.com/amplify/latest/userguide/manual-deploys.html) the deployment.zip file through the AWS Amplify Console.
+3. Navigate to the **Amazon Amplify Console** in your AWS account
+4. Click on **Host web app** > **Deploy without Git provider**
+5. Upload the deployment.zip file created in step 2
+6. Follow the prompts to complete the deployment
 
-### Automated deployment to AWS Amplify
+**Success Criteria**: The application is successfully deployed and accessible via the Amplify URL.
 
-For deploying to AWS Amplify without locally cloning this repository, follow these steps:
+### Automated deployment to Amazon Amplify
+
+**Objective**: Deploy the application to Amazon Amplify using GitHub integration.
 
 1. [Fork](https://github.com/aws-samples/sample-cognito-integrated-bedrock-agents-chat-ui/fork) this repository
 
-2. Open your [AWS Management console and go to AWS Amplify](https://console.aws.amazon.com/amplify/apps):
+2. Open your [AWS Management console and go to Amazon Amplify](https://console.aws.amazon.com/amplify/apps)
 
-3. Follow the steps on this [documentation](https://docs.aws.amazon.com/amplify/latest/userguide/setting-up-GitHub-access.html#setting-up-github-app) to create and app and connect to the GitHub repository you just forked
+3. Follow the steps in this [documentation](https://docs.aws.amazon.com/amplify/latest/userguide/setting-up-GitHub-access.html#setting-up-github-app) to create an app and connect to the GitHub repository you just forked
 
-4. After connecting to your repository, you will be at the "App Setting" step in the AWS Amplify console. From there click on "Edit YML File" and paste the following. 
+4. After connecting to your repository, you will be at the "App Setting" step in the Amazon Amplify console. From there click on **Edit YML File** and paste the following:
 ```YML
 version: 1
 frontend:
@@ -147,36 +179,79 @@ frontend:
     paths:
       - node_modules/**/*
 ```
- 5. Click "Next" and then on "Save and Deploy" if everything looks good in the review page 
+5. Click **Next** and then on **Save and Deploy** if everything looks good in the review page
 
+**Success Criteria**: The application is successfully deployed and accessible via the Amplify URL.
 
 ## Set up Amazon Bedrock Agent
-- [Create](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-create.html) and configure your Bedrock Agent in the AWS Console
-- Note down the Agent ID and other relevant configuration [details](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-view.html)
-- To test this solution with a sample agent, you can leverage the Virtual Meterologist Agent CloudFormation template located [here](https://github.com/aws-samples/virtual-meteorologist-using-amazon-bedrock-agents/blob/main/cfn-virtual-meteorologist-using-amazon-bedrock-agents.yaml)
+
+**Objective**: Configure an Amazon Bedrock Agent to work with the chat UI.
+
+1. Navigate to the **Amazon Bedrock console** in your AWS account
+2. [Create](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-create.html) and configure your Bedrock Agent
+3. Note down the Agent ID and other relevant configuration [details](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-view.html)
+4. To test this solution with a sample agent, you can leverage the Virtual Meteorologist Agent CloudFormation template located [here](https://github.com/aws-samples/virtual-meteorologist-using-amazon-bedrock-agents/blob/main/cfn-virtual-meteorologist-using-amazon-bedrock-agents.yaml)
+
+**Success Criteria**: Amazon Bedrock Agent is created and configured with the necessary permissions.
 
 ## Deployment Validation
 
-- Confirm that the Amplify app is deployed by checking the Amplify Console.
-- Verify that the Bedrock Agent responds to input on the UI.
-- You should see the frontend render an interactive chat interface.
+**Objective**: Verify that all components are working correctly together.
+
+1. Navigate to your deployed Amplify application URL
+2. Verify that the login page appears and you can authenticate using Cognito credentials
+3. After login, confirm that the chat interface loads correctly
+4. Enter a test prompt and verify that the Bedrock Agent responds appropriately
+
+**Success Criteria**:
+- Amplify app is successfully deployed and accessible
+- Authentication with Cognito works correctly
+- The chat interface renders properly
+- The Bedrock Agent responds to user inputs
+
+If any validation step fails, refer to the Troubleshooting section below.
 
 ## Running the Guidance
 
-1. Launch the app (locally or via Amplify).
-2. Log in via Cognito.
-3. Enter a prompt into the chat input.
-4. Observe the response generated by the Bedrock Agent.
+**Objective**: Use the deployed chat application to interact with your Bedrock Agent.
+
+1. Launch the app (locally or via Amplify)
+2. Log in via Cognito
+3. Enter a prompt into the chat input
+4. Observe the response generated by the Bedrock Agent
 
 ### Expected Output
 
-- You will see a conversational response in the chat UI rendered by the React app.
-- All requests go securely through Amplify using temporary credentials.
+- You will see a conversational response in the chat UI rendered by the React app
+- All requests go securely through Amplify using temporary credentials
 
 ### Debugging and Logging
 - Errors from the backend will be printed out in the chat for your visualization and troubleshooting
 - More detailed causes of an error will be also printed in the console log of the browser
-- For development and debugging purposes there are specific events that are printed in the console log of the browser 
+- For development and debugging purposes there are specific events that are printed in the console log of the browser
+
+## Security Considerations
+
+This solution implements several security best practices:
+
+1. **Authentication**: Uses Amazon Cognito for secure user authentication
+2. **Temporary Credentials**: Leverages AWS STS to provide short-lived credentials
+3. **No Stored Secrets**: No long-term credentials are stored in the frontend
+4. **HTTPS**: All communication is encrypted in transit
+
+**Additional Security Recommendations**:
+- Enable Multi-Factor Authentication (MFA) in your Cognito User Pool
+- Implement the principle of least privilege for IAM roles
+- Consider enabling AWS WAF for additional protection against common web exploits
+
+## Performance Optimization
+
+To optimize the performance of your deployment:
+
+1. **Response Time**: Configure appropriate timeouts for Bedrock Agent interactions
+2. **Caching**: Implement client-side caching for frequently accessed resources
+3. **Compression**: Enable GZIP/Brotli compression in Amplify hosting settings
+4. **Monitoring**: Set up CloudWatch metrics to track performance and identify bottlenecks
 
 ## Next Steps
 
@@ -184,32 +259,52 @@ This implementation leverages AWS Cloudscape Design System components to create 
 
 ## Cleanup
 
+**Objective**: Remove all resources created by this guidance to avoid ongoing charges.
+
 1. **Delete Amplify app**  
-   - From AWS Amplify Console, delete the app.
+   - From Amazon Amplify Console, delete the app
 
 2. **Delete Cognito pools**  
-   - Remove both User and Identity Pools.
+   - Remove both User and Identity Pools
 
 3. **Delete Bedrock Agent**  
-   - Navigate to the Bedrock console and delete the created agent.
+   - Navigate to the Amazon Bedrock console and delete the created agent
 
-4. **Optional:** Delete associated IAM roles and policies.
+4. **Optional:** Delete associated IAM roles and policies
+
+**Success Criteria**: All resources are successfully removed and no longer incurring charges.
 
 ## FAQ, Known Issues, Additional Considerations, and Limitations
 
 ### Known Issues
 
-- Some browsers may block third-party cookies, which may affect login behavior.
+- Some browsers may block third-party cookies, which may affect login behavior
+
+### Troubleshooting
+
+1. **Authentication Issues**:
+   - Verify that your Cognito User Pool is correctly configured
+   - Check browser console for CORS-related errors
+
+2. **Agent Not Responding**:
+   - Confirm that your Bedrock Agent has the necessary permissions
+   - Verify that the Agent ID is correctly entered in the configuration
+
+3. **Deployment Failures**:
+   - Check Amplify build logs for any errors
+   - Ensure all dependencies are correctly specified in package.json
 
 ### Additional Considerations
 
-- Amazon Bedrock requests are charged per token.
+- Amazon Bedrock requests are charged per token
+- Consider implementing rate limiting for production deployments
+- For high-traffic applications, evaluate scaling options for Cognito
 
 For issues or feature requests, please use the [GitHub Issues tab](https://github.com/aws-samples/browser-client-bedrock-agents/issues).
 
 ## Revisions
 
-- **v1.0.0** – Initial release with Bedrock Agent integration and Amplify deployment support.
+- **v1.0.0** – Initial release with Bedrock Agent integration and Amplify deployment support
 
 ## Notices
 
@@ -219,11 +314,11 @@ This Guidance:
 (b) represents AWS current product offerings and practices, which are subject to change without notice, and  
 (c) does not create any commitments or assurances from AWS and its affiliates, suppliers, or licensors.  
 
-AWS products or services are provided “as is” without warranties, representations, or conditions of any kind, whether express or implied.  
+AWS products or services are provided "as is" without warranties, representations, or conditions of any kind, whether express or implied.  
 AWS responsibilities and liabilities to its customers are controlled by AWS agreements, and this Guidance is not part of, nor does it modify, any agreement between AWS and its customers.
 
 ## Authors
 - Sergio Barraza
 - Salman Ahmed
 - Ravi Kumar
-- Ankush Goyal  
+- Ankush Goyal
