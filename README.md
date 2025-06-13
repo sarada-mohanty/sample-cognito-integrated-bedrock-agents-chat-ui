@@ -19,7 +19,7 @@
 
 ## Overview
 
-This guidance demonstrates how to build a secure, browser-based chat application that connects directly to [Amazon Bedrock Agents](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-how.html). The solution addresses the need for organizations to quickly deploy AI-powered chat interfaces with enterprise-grade security and authentication.
+This guidance demonstrates how to build a secure, browser-based chat application that connects directly to [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/). The solution addresses the need for organizations to quickly deploy AI-powered chat interfaces with enterprise-grade security and authentication.
 
 **What**: A React-based chat UI that securely connects to Amazon Bedrock Agents.
 
@@ -27,7 +27,7 @@ This guidance demonstrates how to build a secure, browser-based chat application
 
 **Why**: To provide a production-ready solution for deploying secure AI chat applications with minimal setup.
 
-The solution leverages [AWS Amplify](https://docs.aws.amazon.com/amplify/) for hosting and deployment, while implementing secure access through [Amazon Cognito](https://docs.aws.amazon.com/cognito/)'s User and Identity Pools for temporary credential management and API authentication.
+The solution leverages [AWS Amplify](https://aws.amazon.com/amplify/) for hosting and deployment, while implementing secure access through [Amazon Cognito](https://aws.amazon.com/cognito/)'s User and Identity Pools for temporary credential management and API authentication.
 
 ## Architecture Overview
 
@@ -52,7 +52,7 @@ https://github.com/user-attachments/assets/83c4f1c9-9495-4d9c-a323-2e8bbf484523
 1. The user navigates to the Secure Chat UI URL, which is hosted on AWS Amplify
 2. The page is returned with HTML, CSS, JavaScript. User is now able to input the configuration details for Amazon Cognito and Amazon Bedrock Agents
 3. Upon configuration completion, the user is prompted to authenticate using Amazon Cognito with a username and password configured for them in the user pool
-4. After successful authentication, Cognito Identity Pool will negotiate temporary credentials from AWS Simple Token Service (STS)
+4. After successful authentication, Cognito Identity Pool will negotiate temporary credentials from [AWS Security Token Service (STS)](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html)
 5. Cognito Identity Pool passes temporary AWS credentials to the frontend
 6. Once authenticated, the user now sees the Secure Chat UI chat prompt to interact with the Amazon Bedrock Agent that is configured
 
@@ -62,7 +62,7 @@ You are responsible for the cost of the AWS services used while running this Gui
 
 As of May 2025, the cost for running this Guidance with the default settings in the US East (N. Virginia) Region is approximately **$8.65** per month for serving up to 300 daily active users and hourly summarization by 5 developers.
 
-We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/budgets) through AWS Cost Explorer to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this Guidance.
+We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/budgets) through [AWS Cost Explorer](https://aws.amazon.com/aws-cost-management/aws-cost-explorer/) to help manage costs. Prices are subject to change. For full details, refer to the pricing webpage for each AWS service used in this Guidance.
 
 ### Sample Cost Table
 
@@ -84,7 +84,7 @@ We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/bu
    - Amazon Bedrock Agents (for AI functionality)
    - Amazon Cognito (for authentication)
 
-- IAM permissions to:
+- [AWS Identity and Access Management (IAM)](https://aws.amazon.com/iam/) permissions to:
    - Configure and manage Bedrock Agents
    - Set up Cognito user/identity pools
    - Deploy Amplify applications
@@ -190,7 +190,7 @@ frontend:
 1. Navigate to the **Amazon Bedrock console** in your AWS account
 2. [Create](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-create.html) and configure your Bedrock Agent
 3. Note down the Agent ID and other relevant configuration [details](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-view.html)
-4. To test this solution with a sample agent, you can leverage the Virtual Meteorologist Agent CloudFormation template located [here](https://github.com/aws-samples/virtual-meteorologist-using-amazon-bedrock-agents/blob/main/cfn-virtual-meteorologist-using-amazon-bedrock-agents.yaml)
+4. To test this solution with a sample agent, you can leverage the Virtual Meteorologist Agent [AWS CloudFormation](https://aws.amazon.com/cloudformation/) template located [here](https://github.com/aws-samples/virtual-meteorologist-using-amazon-bedrock-agents/blob/main/cfn-virtual-meteorologist-using-amazon-bedrock-agents.yaml)
 
 **Success Criteria**: Amazon Bedrock Agent is created and configured with the necessary permissions.
 
@@ -235,14 +235,14 @@ If any validation step fails, refer to the Troubleshooting section below.
 This solution implements several security best practices:
 
 1. **Authentication**: Uses Amazon Cognito for secure user authentication
-2. **Temporary Credentials**: Leverages AWS STS to provide short-lived credentials
+2. **Temporary Credentials**: Leverages AWS Security Token Service to provide short-lived credentials
 3. **No Stored Secrets**: No long-term credentials are stored in the frontend
 4. **HTTPS**: All communication is encrypted in transit
 
 **Additional Security Recommendations**:
 - Enable Multi-Factor Authentication (MFA) in your Cognito User Pool
 - Implement the principle of least privilege for IAM roles
-- Consider enabling AWS WAF for additional protection against common web exploits
+- Consider enabling [AWS WAF](https://aws.amazon.com/waf/) for additional protection against common web exploits
 
 ## Performance Optimization
 
@@ -250,7 +250,7 @@ To optimize the performance of your deployment:
 
 1. **Response Time**: Configure appropriate timeouts for Bedrock Agent interactions
 2. **Caching**: Implement client-side caching for frequently accessed resources
-3. **Monitoring**: Set up CloudWatch metrics to track performance and identify bottlenecks
+3. **Monitoring**: Set up [Amazon CloudWatch](https://aws.amazon.com/cloudwatch/) metrics to track performance and identify bottlenecks
 
 ## Next Steps
 
