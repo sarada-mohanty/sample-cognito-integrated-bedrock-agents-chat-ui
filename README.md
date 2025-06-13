@@ -27,7 +27,7 @@ This guidance demonstrates how to build a secure, browser-based chat application
 
 **Why**: To provide a production-ready solution for deploying secure AI chat applications with minimal setup.
 
-The solution leverages Amazon Amplify for hosting and deployment, while implementing secure access through Amazon Cognito's User and Identity Pools for temporary credential management and API authentication.
+The solution leverages AWS Amplify for hosting and deployment, while implementing secure access through Amazon Cognito's User and Identity Pools for temporary credential management and API authentication.
 
 ## Architecture Overview
 
@@ -36,7 +36,7 @@ The solution leverages Amazon Amplify for hosting and deployment, while implemen
 
 The architecture implements a secure pattern for browser-based applications to interact with Amazon Bedrock Agents:
 
-1. **Frontend Hosting**: Amazon Amplify hosts the React application, providing scalable content delivery
+1. **Frontend Hosting**: AWS Amplify hosts the React application, providing scalable content delivery
 2. **Authentication**: Amazon Cognito manages user authentication and provides temporary AWS credentials
 3. **Secure API Access**: Temporary credentials allow the frontend to make authenticated calls to Amazon Bedrock
 4. **AI Interaction**: Amazon Bedrock Agents process user queries and return responses directly to the frontend
@@ -49,7 +49,7 @@ https://github.com/user-attachments/assets/83c4f1c9-9495-4d9c-a323-2e8bbf484523
 
 ### High-Level Steps:
 
-1. The user navigates to the Secure Chat UI URL, which is hosted on Amazon Amplify
+1. The user navigates to the Secure Chat UI URL, which is hosted on AWS Amplify
 2. The page is returned with HTML, CSS, JavaScript. User is now able to input the configuration details for Amazon Cognito and Amazon Bedrock Agents
 3. Upon configuration completion, the user is prompted to authenticate using Amazon Cognito with a username and password configured for them in the user pool
 4. After successful authentication, Cognito Identity Pool will negotiate temporary credentials from AWS Simple Token Service (STS)
@@ -69,7 +69,7 @@ We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/bu
 | AWS Service      | Dimensions                                                                 | Cost (USD)     |
 |------------------|-----------------------------------------------------------------------------|----------------|
 | Amazon Cognito   | 1,000 active users per month without advanced security feature              | $0.00/month    |
-| Amazon Amplify   | 5 developers committing code twice a day + 300 daily active users           | $8.00/month    |
+| AWS Amplify      | 5 developers committing code twice a day + 300 daily active users           | $8.00/month    |
 | Amazon Bedrock   | 5 developers summarizing 2K to 1K output tokens hourly using Amazon Nova Lite | $0.65/month    |
 
 ## Prerequisites
@@ -80,7 +80,7 @@ We recommend creating a [Budget](https://console.aws.amazon.com/billing/home#/bu
 
 **AWS Account Requirements**
 - Access to the following services:
-   - Amazon Amplify (for hosting and deployment)
+   - AWS Amplify (for hosting and deployment)
    - Amazon Bedrock Agents (for AI functionality)
    - Amazon Cognito (for authentication)
 
@@ -115,7 +115,7 @@ npm install
 
 **Success Criteria**: All dependencies are installed without errors.
 
-### Local testing before deploying to Amazon Amplify
+### Local testing before deploying to AWS Amplify
 
 1. Start the development server:
 
@@ -128,9 +128,9 @@ npm run dev
 
 **Success Criteria**: The application is running locally and the UI is displayed correctly.
 
-### Manual deployment to Amazon Amplify
+### Manual deployment to AWS Amplify
 
-**Objective**: Deploy the application to Amazon Amplify manually.
+**Objective**: Deploy the application to AWS Amplify manually.
 
 1. Build the application:
 
@@ -145,24 +145,24 @@ cd dist
 zip -r ../deployment.zip ./*
 ```
 
-3. Navigate to the **Amazon Amplify Console** in your AWS account
+3. Navigate to the **AWS Amplify Console** in your AWS account
 4. Click on **Host web app** > **Deploy without Git provider**
 5. Upload the deployment.zip file created in step 2
 6. Follow the prompts to complete the deployment
 
 **Success Criteria**: The application is successfully deployed and accessible via the Amplify URL.
 
-### Automated deployment to Amazon Amplify
+### Automated deployment to AWS Amplify
 
-**Objective**: Deploy the application to Amazon Amplify using GitHub integration.
+**Objective**: Deploy the application to AWS Amplify using GitHub integration.
 
 1. [Fork](https://github.com/aws-samples/sample-cognito-integrated-bedrock-agents-chat-ui/fork) this repository
 
-2. Open your [AWS Management console and go to Amazon Amplify](https://console.aws.amazon.com/amplify/apps)
+2. Open your [AWS Management console and go to AWS Amplify](https://console.aws.amazon.com/amplify/apps)
 
 3. Follow the steps in this [documentation](https://docs.aws.amazon.com/amplify/latest/userguide/setting-up-GitHub-access.html#setting-up-github-app) to create an app and connect to the GitHub repository you just forked
 
-4. After connecting to your repository, you will be at the "App Setting" step in the Amazon Amplify console. From there click on **Edit YML File** and paste the following:
+4. After connecting to your repository, you will be at the "App Setting" step in the AWS Amplify console. From there click on **Edit YML File** and paste the following:
 ```YML
 version: 1
 frontend:
@@ -250,8 +250,7 @@ To optimize the performance of your deployment:
 
 1. **Response Time**: Configure appropriate timeouts for Bedrock Agent interactions
 2. **Caching**: Implement client-side caching for frequently accessed resources
-3. **Compression**: Enable GZIP/Brotli compression in Amplify hosting settings
-4. **Monitoring**: Set up CloudWatch metrics to track performance and identify bottlenecks
+3. **Monitoring**: Set up CloudWatch metrics to track performance and identify bottlenecks
 
 ## Next Steps
 
@@ -262,7 +261,7 @@ This implementation leverages AWS Cloudscape Design System components to create 
 **Objective**: Remove all resources created by this guidance to avoid ongoing charges.
 
 1. **Delete Amplify app**  
-   - From Amazon Amplify Console, delete the app
+   - From AWS Amplify Console, delete the app
 
 2. **Delete Cognito pools**  
    - Remove both User and Identity Pools
