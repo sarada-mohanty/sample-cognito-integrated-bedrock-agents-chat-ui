@@ -20,7 +20,7 @@
 ## Architecture Overview
 [AWSReferenceArchitecture-SecureChatUI.pdf](https://github.com/user-attachments/files/21689989/AWSReferenceArchitecture-SecureChatUI.pdf)
 
-![Architecture diagram showing the flow between user, Amplify hosting, Cognito authentication, and Bedrock Agents](https://github.com/user-attachments/files/21689944/AWSReferenceArchitecture-SecureChatUI.pdf)
+![Architecture diagram showing the flow between user, Amplify hosting, Cognito authentication, and Bedrock Agents](https://github.com/user-attachments/files/21689989/AWSReferenceArchitecture-SecureChatUI.pdf)
 *Figure 1: Architecture diagram showing the secure authentication flow and connection to Amazon Bedrock Agents*
 
 The architecture implements a secure pattern for browser-based applications to interact with Amazon Bedrock Agents:
