@@ -20,6 +20,7 @@ import {
 import PropTypes from 'prop-types';
 import * as AWSAuth from '@aws-amplify/auth';
 import { BedrockAgentRuntimeClient, InvokeAgentCommand } from "@aws-sdk/client-bedrock-agent-runtime";
+import { BedrockAgentCoreClient, InvokeAgentRuntimeCommand } from "@aws-sdk/client-bedrock-agentcore";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import './ChatComponent.css';
 
@@ -36,6 +37,8 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
   const [bedrockClient, setBedrockClient] = useState(null);
   // AWS Lambda client for Strands agent communication
   const [lambdaClient, setLambdaClient] = useState(null);
+  // AgentCore client for AgentCore agent communication
+  const [agentCoreClient, setAgentCoreClient] = useState(null);
   // Array of chat messages in the conversation
   const [messages, setMessages] = useState([]);
   // Current message being composed by the user
@@ -54,6 +57,8 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
   const [tasksCompleted, setTasksCompleted] = useState({ count: 0, latestRationale: '' });
   // Flag to determine if using Strands Agent
   const [isStrandsAgent, setIsStrandsAgent] = useState(false);
+  // Flag to determine if using AgentCore Agent
+  const [isAgentCoreAgent, setIsAgentCoreAgent] = useState(false);
 
   /**
   * Scrolls the chat window to the most recent message
@@ -104,7 +109,7 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
    */
   const createNewSession = useCallback(() => {
     // Generate new session ID using current timestamp
-    const newSessionId = Date.now().toString();
+    const newSessionId = `agentcore-session-${Date.now()}-${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}`;
     // Update session state
     setSessionId(newSessionId);
     // Clear existing messages
@@ -178,11 +183,15 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
         // Check if Strands Agent is enabled
         setIsStrandsAgent(strandsConfig && strandsConfig.enabled);
         
+        // Check if AgentCore Agent is enabled
+        const agentCoreConfig = appConfig.agentcore;
+        setIsAgentCoreAgent(agentCoreConfig && agentCoreConfig.enabled);
+        
         // Fetch AWS authentication session
         const session = await AWSAuth.fetchAuthSession();
         
         // Initialize Bedrock client if needed
-        if (!strandsConfig || !strandsConfig.enabled) {
+        if (!strandsConfig?.enabled && !agentCoreConfig?.enabled) {
           const newBedrockClient = new BedrockAgentRuntimeClient({
             region: bedrockConfig.region,
             credentials: session.credentials
@@ -193,7 +202,7 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
           }
         } 
         // Initialize Lambda client for Strands Agent
-        else {
+        else if (strandsConfig && strandsConfig.enabled && !agentCoreConfig?.enabled) {
           const newLambdaClient = new LambdaClient({
             region: strandsConfig.region,
             credentials: session.credentials
@@ -201,6 +210,18 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
           setLambdaClient(newLambdaClient);
           if (strandsConfig.agentName && strandsConfig.agentName.trim()) {
             setAgentName({ value: strandsConfig.agentName });
+          }
+        }
+
+        // Initialize AgentCore client if enabled
+        if (agentCoreConfig && agentCoreConfig.enabled && agentCoreConfig.region) {
+          const newAgentCoreClient = new BedrockAgentCoreClient({
+            region: agentCoreConfig.region,
+            credentials: session.credentials
+          });
+          setAgentCoreClient(newAgentCoreClient);
+          if (agentCoreConfig.agentName && agentCoreConfig.agentName.trim()) {
+            setAgentName({ value: agentCoreConfig.agentName });
           }
         }
       } catch (error) {
@@ -212,10 +233,10 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
   }, []);
 
   useEffect(() => {
-    if ((bedrockClient || lambdaClient) && !sessionId) {
+    if ((bedrockClient || lambdaClient || agentCoreClient) && !sessionId) {
       loadExistingSession();
     }
-  }, [bedrockClient, lambdaClient, sessionId, loadExistingSession]);
+  }, [bedrockClient, lambdaClient, agentCoreClient, sessionId, loadExistingSession]);
 
   /**
    * Effect hook to scroll to latest messages
@@ -331,6 +352,42 @@ const ChatComponent = ({ user, onLogout, onConfigEditorClick }) => {
             responseText = "Sorry, I couldn't process your request.";
           }
           
+          agentMessage = { text: responseText, sender: agentName.value };
+        }
+        // Handle AgentCore Agent
+        else if (isAgentCoreAgent && agentCoreClient) {
+          const agentCoreConfig = appConfig.agentcore;
+          
+          const command = new InvokeAgentRuntimeCommand({
+            agentRuntimeArn: agentCoreConfig.agentArn,
+            runtimeSessionId: sessionId,
+            payload: JSON.stringify({ prompt: newMessage })
+          });
+
+          const response = await agentCoreClient.send(command);
+          
+          // Handle ReadableStream response
+          let responseBody = '';
+          if (response.response && response.response.getReader) {
+            const reader = response.response.getReader();
+            const decoder = new TextDecoder();
+            let done = false;
+            
+            while (!done) {
+              const { value, done: streamDone } = await reader.read();
+              done = streamDone;
+              if (value) {
+                responseBody += decoder.decode(value, { stream: true });
+              }
+            }
+          } else {
+            responseBody = response.response || '';
+          }
+          
+          console.log('AgentCore raw response:', responseBody);
+          
+          const parsedResponse = JSON.parse(responseBody);
+          const responseText = parsedResponse.result || "Sorry, I couldn't process your request.";
           agentMessage = { text: responseText, sender: agentName.value };
         } else {
           throw new Error("No agent client available");
