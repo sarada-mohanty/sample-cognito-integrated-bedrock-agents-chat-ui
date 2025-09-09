@@ -11,4 +11,9 @@ export default defineConfig({
       './runtimeConfig': './runtimeConfig.browser', // This is needed for Amplify
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['@aws-sdk/client-bedrock-agentcore']
+    }
+  }
 })
