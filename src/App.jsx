@@ -26,10 +26,16 @@ function App() {
    * Updates the configuration state when editing mode changes
    */
   useEffect(() => {
+    console.log('App useEffect running...');
     const storedConfig = localStorage.getItem('appConfig');
+    console.log('Stored config:', storedConfig);
+    console.log('isEditingConfig:', isEditingConfig);
     if (storedConfig && !isEditingConfig) {
       //setBerockConfig(JSON.parse(storedConfig).bedrock);
       setIsConfigured(true);
+      console.log('Configuration found, setting isConfigured to true');
+    } else {
+      console.log('No configuration found, showing config screen');
     }
   }, [isEditingConfig]);
 
@@ -44,6 +50,8 @@ function App() {
   /**
    * Render the appropriate component based on configuration and authentication state
    */
+    console.log('App rendering - isConfigured:', isConfigured, 'isEditingConfig:', isEditingConfig);
+  
   return (
     <div>
       {!isConfigured || isEditingConfig ? (
