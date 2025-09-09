@@ -46,12 +46,6 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
       lambdaArn: '',
       agentName: 'Strands Agent',
       region: ''
-    },
-    agentcore: {
-      enabled: false,
-      agentArn: '',
-      agentName: 'AgentCore Agent',
-      region: ''
     }
   });
   const [errors, setErrors] = useState({});
@@ -86,8 +80,8 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
       newErrors.cognitoRegion = 'Cognito Region is required';
     }
 
-    // Validate Bedrock fields if neither Strands nor AgentCore is enabled
-    if (!config.strands.enabled && !config.agentcore.enabled) {
+    // Validate Bedrock fields if Strands is not enabled
+    if (!config.strands.enabled) {
       if (!config.bedrock.agentId.trim()) {
         newErrors.agentId = 'Agent ID is required';
       }
@@ -109,15 +103,7 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
       }
     }
 
-    // Validate AgentCore fields if enabled
-    if (config.agentcore.enabled) {
-      if (!config.agentcore.agentArn.trim()) {
-        newErrors.agentCoreArn = 'AgentCore ARN is required';
-      }
-      if (!config.agentcore.region.trim()) {
-        newErrors.agentCoreRegion = 'Region is required';
-      }
-    }
+
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -298,8 +284,8 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
                     >
                       <Select
                         selectedOption={{
-                          value: config.agentcore.enabled ? 'agentcore' : (config.strands.enabled ? 'strands' : 'bedrock'),
-                          label: config.agentcore.enabled ? 'AgentCore Agent' : (config.strands.enabled ? 'Strands Agent' : 'Bedrock Agent')
+                          value: config.strands.enabled ? 'strands' : 'bedrock',
+                          label: config.strands.enabled ? 'Strands Agent' : 'Bedrock Agent'
                         }}
                         onChange={({ detail }) => {
                           setConfig(prevConfig => ({
@@ -307,24 +293,19 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
                             strands: {
                               ...prevConfig.strands,
                               enabled: detail.selectedOption.value === 'strands'
-                            },
-                            agentcore: {
-                              ...prevConfig.agentcore,
-                              enabled: detail.selectedOption.value === 'agentcore'
                             }
                           }));
                         }}
                         options={[
                           { value: 'bedrock', label: 'Bedrock Agent' },
-                          { value: 'strands', label: 'Strands Agent' },
-                          { value: 'agentcore', label: 'AgentCore Agent' }
+                          { value: 'strands', label: 'Strands Agent' }
                         ]}
                       />
                     </FormField>
                   </SpaceBetween>
                 </Container>
             
-                {!config.strands.enabled && !config.agentcore.enabled && (
+                {!config.strands.enabled && (
                   <Container
                     header={
                       <Header variant="h2">Amazon Bedrock Agent setup</Header>
@@ -449,56 +430,7 @@ const ConfigComponent = ({ onConfigSet, isEditingConfig, setEditingConfig }) => 
                   </Container>
                 )}
 
-                {/* AgentCore Agent Configuration */}
-                {config.agentcore.enabled && (
-                  <Container
-                    header={<Header variant="h2">AgentCore Agent Configuration</Header>}
-                  >
-                    <SpaceBetween size="l">
-                      <FormField 
-                        label="Agent Name"
-                        errorText={errors.agentCoreAgentName}
-                      >
-                        <Input
-                          value={config.agentcore.agentName}
-                          placeholder='e.g. Virtual Meteorologist'
-                          onChange={({ detail }) => {
-                            handleInputChange('agentcore', 'agentName', detail.value);
-                            setErrors({...errors, agentCoreAgentName: ''});
-                          }}
-                        />
-                      </FormField>
-                      <FormField 
-                        label="AgentCore ARN" 
-                        isRequired
-                        errorText={errors.agentCoreArn}
-                      >
-                        <Input
-                          value={config.agentcore.agentArn}
-                          placeholder='e.g. arn:aws:bedrock-agentcore:us-east-1:123456789012:runtime/agent-xyz'
-                          onChange={({ detail }) => {
-                            handleInputChange('agentcore', 'agentArn', detail.value);
-                            setErrors({...errors, agentCoreArn: ''});
-                          }}
-                        />
-                      </FormField>
-                      <FormField 
-                        label="Region" 
-                        isRequired
-                        errorText={errors.agentCoreRegion}
-                      >
-                        <Input
-                          value={config.agentcore.region}
-                          placeholder='e.g. us-east-1'
-                          onChange={({ detail }) => {
-                            handleInputChange('agentcore', 'region', detail.value);
-                            setErrors({...errors, agentCoreRegion: ''});
-                          }}
-                        />
-                      </FormField>
-                    </SpaceBetween>
-                  </Container>
-                )}
+
               </SpaceBetween>
             </Form>
           </form>
